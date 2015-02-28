@@ -47,9 +47,29 @@ npm i gl-plot3d
 
 #### `var scene = require('gl-plot3d')(canvas[, options])`
 
-## Properties
-
-
-
 ## Methods
 
+#### `scene.addObject(obj)`
+
+#### `scene.removeObject(obj)`
+
+#### `scene.dispose()`
+
+
+## Properties
+
+#### `scene.gl`
+
+#### `scene.axes`
+
+#### `scene.camera`
+
+#### `scene.bounds`
+
+#### `scene.zNear`
+
+#### `scene.zFar`
+
+#### `scene.fovy`
+
+#### `scene.clearColor`
