@@ -10,10 +10,12 @@ var mouseChange  = require('mouse-change')
 var perspective  = require('gl-mat4/perspective')
 
 function MouseSelect() {
-  this.mousePosition  = [-1,-1]
-  this.screenPosition = [-1,-1]
-  this.rayOrigin      = [0,0,0]
-  this.rayDirection   = [0,0,0]
+  this.mouse          = [-1,-1]
+  this.screen         = null
+  this.distance       = Infinity
+  this.index          = null
+  this.dataCoordinate = null
+  this.dataPosition   = null
   this.object         = null
   this.data           = null
 }
@@ -68,10 +70,12 @@ function createScene(canvas, options) {
   //Create spikes
   var spikeOptions = options.spikes || {}
   var spikes = createSpikes(gl, spikeOptions)
-  spikes.enable = !spikeOptions.disable
-
+  
   //Object list is empty initially
-  var objects = []
+  var objects         = []
+  var pickBufferIds   = []
+  var pickBufferCount = []
+  var pickBuffers     = []
 
   //Dirty flag, skip redraw if scene static
   var dirty = true
@@ -83,7 +87,9 @@ function createScene(canvas, options) {
     selection:    selection,
     camera:       camera,
     axes:         axes,
+    spikes:       spikes,
     bounds:       bounds,
+    pickRadius:   options.pickRadius || 10,
     zNear:        options.zNear || 0.01,
     zFar:         options.zFar  || 1000,
     fovy:         options.fovy  || Math.PI/4,
@@ -91,14 +97,13 @@ function createScene(canvas, options) {
     autoBounds:   defaultBool(options.autoBounds),
     autoScale:    defaultBool(options.autoScale),
     autoCenter:   defaultBool(options.autoCenter),
-    clipToBounds: defaultBool(options.clipToBounds)
+    clipToBounds: defaultBool(options.clipToBounds),
+    snapToData:   !!options.snapToData
   }
 
   var projection     = new Array(16)
-  var prevProjection = new Array(16)
   var model          = new Array(16)
-  var prevModel      = new Array(16)
-
+  
   var cameraParams = {
     view:         camera.matrix,
     projection:   projection,
@@ -107,12 +112,47 @@ function createScene(canvas, options) {
 
   var pickChanged = false
 
-  scene.update = function(options) {
+  function reallocPickIds() {
+    var numObjs = objects.length
+    var numPick = pickBuffers.length
+    for(var i=0; i<numPick; ++i) {
+      pickBufferCount[i] = 0
+    }
+    obj_loop:
+    for(var i=0; i<numObjs; ++i) {
+      var obj = objects[i]
+      var pickCount = obj.pickSlots
+      if(!pickCount) {
+        pickBufferIds[i] = -1
+        continue
+      }
+      for(var j=0; j<numPick; ++j) {
+        if(pickBufferCount[j] + pickCount < 255) {
+          pickBufferIds[i] = j
+          obj.setPickBase(pickBufferCount[j]+1)
+          pickBufferCount[j] += pickCount
+          continue obj_loop
+        }
+      }
+      //Create new pick buffer
+      var nbuffer = createSelect(gl, [gl.drawingBufferWidth, gl.drawingBufferHeight])
+      pickBufferIds[i] = numPick
+      pickBuffers.push(nbuffer)
+      pickBufferCount.push(pickCount)
+      obj.setPickBase(1)
+      numPick += 1
+    }
+    while(numPick > 0 && pickBufferCount[numPick-1] === 0) {
+      pickBufferCount.pop()
+      pickBuffers.pop().dispose()
+    }
   }
 
   scene.addObject = function(obj) {
     objects.push(obj)
+    pickBufferIds.push(-1)
     dirty = true
+    reallocPickIds()
   }
 
   scene.removeObject = function(obj) {
@@ -121,7 +161,9 @@ function createScene(canvas, options) {
       return
     }
     objects.splice(idx, 1)
+    pickBufferIds.pop()
     dirty = true
+    reallocPickIds()
   }
 
   scene.dispose = function() {
@@ -134,24 +176,66 @@ function createScene(canvas, options) {
 
   //Update mouse position
   mouseChange(canvas, function(buttons, x, y) {
+    var numPick = pickBuffers.length
+    var numObjs = objects.length
+    var prevObj = selection.object
+    selection.distance = Infinity
+    selection.mouse = [x, y]
+    selection.object = null
+    selection.screen = null
+    selection.dataCoordinate = selection.dataPosition = null
+    for(var i=0; i<numPick; ++i) {
+      var result = pickBuffers[i].query(x, gl.drawingBufferHeight - y - 1, scene.pickRadius)
+      if(result) {
+        if(result.distance > selection.distance) {
+          continue
+        }
+        for(var j=0; j<numObjs; ++j) {
+          var obj = objects[j]
+          if(pickBufferIds[j] !== i) {
+            continue
+          }
+          var objPick = obj.pick(result)
+          if(objPick) {
+            selection.screen = result.coord
+            selection.distance = result.distance
+            selection.object = obj
+            selection.index = objPick.distance
+            selection.dataPosition = objPick.position
+            selection.dataCoordinate = objPick.dataCoordinate
+            selection.data = objPick
+            pickChanged = true
+          }
+        }
+      }
+    }
+    pickChanged = pickChanged || (prevObj !== selection.object)
   })
 
   //Render the scene for mouse picking
   function renderPick() {
     var numObjs = objects.length
-    for(var i=0; i<numObjs; ++i) {
-      var obj = objects[i]
-      if(obj.drawPick) {
-        //Render to pick buffer
+    var numPick = pickBuffers.length
+    for(var j=0; j<numPick; ++j) {
+      var buf = pickBuffers[j]
+      buf.shape = [gl.drawingBufferWidth, gl.drawingBufferHeight]
+      buf.begin()
+      for(var i=0; i<numObjs; ++i) {
+        if(pickBufferIds[i] !== j) {
+          continue
+        }
+        var obj = objects[i]
+        if(obj.drawPick) {
+          obj.drawPick(cameraParams)
+        }
       }
+      buf.end()
     }
   }
 
   var nBounds = [
     [Infinity, Infinity, Infinity],
     [-Infinity,-Infinity,-Infinity]]
-
-  var prevClearColor = [0,0,0,0]
 
   //Draw the whole scene
   function render() {
@@ -251,23 +335,6 @@ function createScene(canvas, options) {
       }
     }
 
-    //Check if matrices changed
-    for(var i=0; i<16; ++i) {
-      dirty = dirty || 
-        (prevModel[i] !== model[i]) || 
-        (prevProjection !== projection[i])
-      prevModel[i] = model[i]
-      prevProjection[i] = projection[i]
-    }
-
-    //Check if clear color changed
-    var clearColor = prevClearColor
-    for(var i=0; i<4; ++i) {
-      var c = +scene.clearColor[i] || 0.0
-      pickChanged = pickChanged || (clearColor[i] !== c)
-      clearColor[i] = c
-    }
-
     //Check dirty flag
     if(!dirty && !pickChanged) {
       return
@@ -291,6 +358,7 @@ function createScene(canvas, options) {
       renderPick()
     }
 
+    //Read value
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.viewport(0, 0, width, height)
 
@@ -300,14 +368,28 @@ function createScene(canvas, options) {
     //  3. composite final scene
 
     //Clear FBO
+    var clearColor = scene.clearColor
     gl.clearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3])
     gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
     gl.enable(gl.DEPTH_TEST)
 
-    //Render forward pass
+    //Draw axes
     if(axes.enable) {
       axes.draw(cameraParams)
     }
+
+    //Draw spikes
+    if(selection.object) {
+      if(scene.snapToData) {
+        spikes.position = selection.dataCoordinate
+      } else {
+        spikes.position = selection.dataPosition
+      }
+      spikes.bounds = bounds
+      spikes.draw(cameraParams)
+    }
+
+    //Draw objects
     for(var i=0; i<numObjs; ++i) {
       var obj = objects[i]
       obj.draw(cameraParams)
@@ -317,11 +399,10 @@ function createScene(canvas, options) {
 
     //Clear dirty flags
     pickChanged = false
-    scene.dirty = false
+    dirty = false
     for(var i=0; i<numObjs; ++i) {
       objects[i].dirty = false
     }
-    axes.dirty = false
   }
   render()
 
