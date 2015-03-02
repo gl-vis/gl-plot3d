@@ -27,7 +27,9 @@
     "gl-surface-plot": "^5.3.0"
   },
   "scripts": {
-    "scatter": "beefy ./example/scatter.js --open"
+    "scatter": "beefy ./example/scatter.js --open",
+    "line": "beefy ./example/line.js --open",
+    "surface": "beefy ./example/surface.js --open"
   },
   "repository": {
     "type": "git",
