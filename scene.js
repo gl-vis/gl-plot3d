@@ -78,8 +78,9 @@ function createScene(canvas, options) {
   var pickBuffers     = []
 
   //Dirty flag, skip redraw if scene static
-  var dirty = true
-
+  var dirty       = true
+  var pickDirty   = true
+  
   //Create scene object
   var scene = {
     gl:           gl,
@@ -111,7 +112,7 @@ function createScene(canvas, options) {
     model:        model
   }
 
-  var pickChanged = false
+  var pickDirty = true
 
   function reallocPickIds() {
     var numObjs = objects.length
@@ -153,6 +154,7 @@ function createScene(canvas, options) {
     objects.push(obj)
     pickBufferIds.push(-1)
     dirty = true
+    pickDirty = true
     reallocPickIds()
   }
 
@@ -164,6 +166,7 @@ function createScene(canvas, options) {
     objects.splice(idx, 1)
     pickBufferIds.pop()
     dirty = true
+    pickDirty = true
     reallocPickIds()
   }
 
@@ -176,6 +179,7 @@ function createScene(canvas, options) {
   }
 
   //Update mouse position
+  var mouseRotating = false
   mouseChange(canvas, function(buttons, x, y) {
     var numPick = pickBuffers.length
     var numObjs = objects.length
@@ -185,39 +189,51 @@ function createScene(canvas, options) {
     selection.object = null
     selection.screen = null
     selection.dataCoordinate = selection.dataPosition = null
-    for(var i=0; i<numPick; ++i) {
-      var result = pickBuffers[i].query(x, gl.drawingBufferHeight - y - 1, scene.pickRadius)
-      if(result) {
-        if(result.distance > selection.distance) {
-          continue
-        }
-        for(var j=0; j<numObjs; ++j) {
-          var obj = objects[j]
-          if(pickBufferIds[j] !== i) {
+
+    if(buttons) {
+      mouseRotating = true
+    } else {
+      if(mouseRotating) {
+        pickDirty = true
+      }
+      mouseRotating = false
+
+      for(var i=0; i<numPick; ++i) {
+        var result = pickBuffers[i].query(x, gl.drawingBufferHeight - y - 1, scene.pickRadius)
+        if(result) {
+          if(result.distance > selection.distance) {
             continue
           }
-          var objPick = obj.pick(result)
-          if(objPick) {
-            selection.screen = result.coord
-            selection.distance = result.distance
-            selection.object = obj
-            selection.index = objPick.distance
-            selection.dataPosition = objPick.position
-            selection.dataCoordinate = objPick.dataCoordinate
-            selection.data = objPick
-            pickChanged = true
+          for(var j=0; j<numObjs; ++j) {
+            var obj = objects[j]
+            if(pickBufferIds[j] !== i) {
+              continue
+            }
+            var objPick = obj.pick(result)
+            if(objPick) {
+              selection.screen = result.coord
+              selection.distance = result.distance
+              selection.object = obj
+              selection.index = objPick.distance
+              selection.dataPosition = objPick.position
+              selection.dataCoordinate = objPick.dataCoordinate
+              selection.data = objPick
+            }
           }
         }
       }
     }
-    pickChanged = pickChanged || (prevObj !== selection.object)
-    if(pickChanged) {
-      if(prevObj && prevObj !== selection.object && prevObj.highlight) {
+    if(prevObj && prevObj !== selection.object) {
+      if(prevObj.highlight) {
         prevObj.highlight(null)
       }
-      if(selection.object && selection.object.highlight) {
+      dirty = true
+    }
+    if(selection.object) {
+      if(selection.object.highlight) {
         selection.object.highlight(selection.data)
       }
+      dirty = true
     }
   })
 
@@ -262,6 +278,7 @@ function createScene(canvas, options) {
     for(var i=0; i<numObjs; ++i) {
       var obj = objects[i]
       dirty = dirty || !!obj.dirty
+      pickDirty = pickDirty || !!obj.dirty
       var obb = obj.bounds
       if(obb) {
         var olo = obb[0]
@@ -311,6 +328,7 @@ function createScene(canvas, options) {
     }
 
     //Recalculate bounds
+    pickDirty = pickDirty || boundsChanged
     dirty = dirty || boundsChanged
 
     //Get scene
@@ -344,11 +362,6 @@ function createScene(canvas, options) {
       }
     }
 
-    //Check dirty flag
-    if(!dirty && !pickChanged) {
-      return
-    }
-
     //Apply axes/clip bounds
     for(var i=0; i<numObjs; ++i) {
       var obj = objects[i]
@@ -363,8 +376,13 @@ function createScene(canvas, options) {
     }
 
     //If state changed, then redraw pick buffers
-    if(dirty) {
+    if(pickDirty) {
+      pickDirty = false
       renderPick()
+    }
+
+    if(!dirty) {
+      return
     }
 
     //Read value
@@ -379,10 +397,12 @@ function createScene(canvas, options) {
     //Clear FBO
     var clearColor = scene.clearColor
     gl.clearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3])
-    gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    gl.depthMask(true)
+    gl.colorMask(true, true, true, true)  
     gl.enable(gl.DEPTH_TEST)
     gl.depthFunc(gl.LEQUAL)
-    
+
     //Draw axes
     if(axes.enable) {
       axes.draw(cameraParams)
@@ -408,7 +428,6 @@ function createScene(canvas, options) {
     //Render transparent pass
 
     //Clear dirty flags
-    pickChanged = false
     dirty = false
     for(var i=0; i<numObjs; ++i) {
       objects[i].dirty = false
