@@ -44,4 +44,6 @@ var surface = createSurface(scene.gl,  coords[2], {
   showContour: true
 })
 
+surface.opacity = 0.15
+
 scene.addObject(surface)

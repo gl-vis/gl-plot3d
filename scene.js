@@ -335,7 +335,6 @@ function createScene(canvas, options) {
           bounds[1][i] = hi[i]
           tickSpacing[i] = roundUpPow10((hi[i]-lo[i]) / 10.0)
         }
-        console.log(bounds, tickSpacing)
         if(axes.autoTicks) {
           axes.update({
             bounds: bounds,
