@@ -1,8 +1,9 @@
 'use strict'
 
 var createScene = require('../scene')
-var createScatter = require('gl-scatter-plot')
+var createMesh = require('gl-simplicial-complex')
 var bunny = require('bunny')
+var sc = require('simplicial-complex')
 var fit = require('canvas-fit')
 
 var canvas = document.createElement('canvas')
@@ -10,15 +11,10 @@ document.body.appendChild(canvas)
 window.addEventListener('resize', fit(canvas))
 
 var scene = createScene(canvas)
-
-var scatter = createScatter(scene.gl, {
-  position:     bunny.positions,
-  size:         10,
-  glyph:        '★',
-  orthographic: true,
-  lineColor:    [0,0,0],
-  color:        [1,0,0],
-  lineWidth:    1
+var mesh = createMesh(scene.gl, {
+  cells:      sc.skeleton(bunny.cells, 1),
+  positions:  bunny.positions,
+  colormap:   'jet'
 })
 
-scene.addObject(scatter)
+scene.addObject(mesh)

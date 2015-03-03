@@ -30,10 +30,7 @@ for(var i=0; i<=2*size; ++i) {
   }
 }
 
-var contourLevels = []
-for(var i=-5; i<=5; ++i) {
-  contourLevels.push(20*(i+0.3)/6.0)
-}
+var contourLevels = [[0], [0], [0]]
 
 var surface = createSurface(scene.gl,  coords[2], {
   levels: [ contourLevels, contourLevels, contourLevels ],

@@ -89,6 +89,7 @@ function createScene(canvas, options) {
     axes:         axes,
     spikes:       spikes,
     bounds:       bounds,
+    objects:      objects,
     pickRadius:   options.pickRadius || 10,
     zNear:        options.zNear || 0.01,
     zFar:         options.zFar  || 1000,
@@ -210,6 +211,14 @@ function createScene(canvas, options) {
       }
     }
     pickChanged = pickChanged || (prevObj !== selection.object)
+    if(pickChanged) {
+      if(prevObj && prevObj !== selection.object && prevObj.highlight) {
+        prevObj.highlight(null)
+      }
+      if(selection.object && selection.object.highlight) {
+        selection.object.highlight(selection.data)
+      }
+    }
   })
 
   //Render the scene for mouse picking
@@ -372,7 +381,8 @@ function createScene(canvas, options) {
     gl.clearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3])
     gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
     gl.enable(gl.DEPTH_TEST)
-
+    gl.depthFunc(gl.LEQUAL)
+    
     //Draw axes
     if(axes.enable) {
       axes.draw(cameraParams)
