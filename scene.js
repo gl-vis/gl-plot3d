@@ -6,8 +6,11 @@ var createCamera = require('3d-view-controls')
 var createAxes   = require('gl-axes')
 var createSpikes = require('gl-spikes')
 var createSelect = require('gl-select-static')
+var createFBO    = require('gl-fbo')
+var drawTriangle = require('a-big-triangle')
 var mouseChange  = require('mouse-change')
 var perspective  = require('gl-mat4/perspective')
+var createShader = require('./lib/shader')
 
 function MouseSelect() {
   this.mouse          = [-1,-1]
@@ -20,14 +23,16 @@ function MouseSelect() {
   this.data           = null
 }
 
-function roundDownPow10(x) {
-  var base = Math.pow(10, Math.round(Math.log(Math.abs(x)) / Math.log(10)))
-  return Math.floor(x / base) * base
-}
-
 function roundUpPow10(x) {
-  var base = Math.pow(10, Math.round(Math.log(Math.abs(x)) / Math.log(10)))
-  return Math.ceil(x / base) * base 
+  var y = Math.round(Math.log(Math.abs(x)) / Math.log(10))
+  if(y < 0) {
+    var base = Math.round(Math.pow(10, -y))
+    return Math.ceil(x*base) / base
+  } else if(y > 0) {
+    var base = Math.round(Math.pow(10, y))
+    return Math.ceil(x/base) * base
+  }
+  return Math.ceil(x)
 }
 
 function defaultBool(x) {
@@ -50,6 +55,14 @@ function createScene(canvas, options) {
 
   //Create selection
   var selection = new MouseSelect()
+
+  //Accumulation buffer
+  var accumBuffer = createFBO(gl,
+    [gl.drawingBufferWidth, gl.drawingBufferHeight], {
+      preferFloat: true
+    })
+
+  var accumShader = createShader(gl)
 
   //Create a camera
   var cameraOptions = options.camera || {
@@ -239,6 +252,12 @@ function createScene(canvas, options) {
 
   //Render the scene for mouse picking
   function renderPick() {
+
+    gl.colorMask(true, true, true, true)
+    gl.depthMask(true)
+    gl.disable(gl.BLEND)
+    gl.enable(gl.DEPTH_TEST)
+
     var numObjs = objects.length
     var numPick = pickBuffers.length
     for(var j=0; j<numPick; ++j) {
@@ -267,7 +286,9 @@ function createScene(canvas, options) {
     requestAnimationFrame(render)
 
     //Tick camera
-    dirty = camera.tick() || dirty
+    var cameraMoved = camera.tick()
+    dirty     = dirty || cameraMoved
+    pickDirty = pickDirty || cameraMoved
 
     //Check if any objects changed, recalculate bounds
     var numObjs = objects.length
@@ -314,6 +335,7 @@ function createScene(canvas, options) {
           bounds[1][i] = hi[i]
           tickSpacing[i] = roundUpPow10((hi[i]-lo[i]) / 10.0)
         }
+        console.log(bounds, tickSpacing)
         if(axes.autoTicks) {
           axes.update({
             bounds: bounds,
@@ -375,6 +397,16 @@ function createScene(canvas, options) {
       }
     }
 
+    //Set spike parameters
+    if(selection.object) {
+      if(scene.snapToData) {
+        spikes.position = selection.dataCoordinate
+      } else {
+        spikes.position = selection.dataPosition
+      }
+      spikes.bounds = bounds
+    }
+
     //If state changed, then redraw pick buffers
     if(pickDirty) {
       pickDirty = false
@@ -402,30 +434,81 @@ function createScene(canvas, options) {
     gl.colorMask(true, true, true, true)  
     gl.enable(gl.DEPTH_TEST)
     gl.depthFunc(gl.LEQUAL)
+    gl.disable(gl.BLEND)
 
-    //Draw axes
+    //Render opaque pass
+    var hasTransparent = false
     if(axes.enable) {
       axes.draw(cameraParams)
     }
-
-    //Draw spikes
     if(selection.object) {
-      if(scene.snapToData) {
-        spikes.position = selection.dataCoordinate
-      } else {
-        spikes.position = selection.dataPosition
-      }
-      spikes.bounds = bounds
       spikes.draw(cameraParams)
     }
-
-    //Draw objects
+    gl.disable(gl.CULL_FACE)
+    
     for(var i=0; i<numObjs; ++i) {
       var obj = objects[i]
-      obj.draw(cameraParams)
+      if(obj.isOpaque && obj.isOpaque()) {
+        obj.draw(cameraParams)
+      }
+      if(obj.isTransparent && obj.isTransparent()) {
+        hasTransparent = true
+      }
     }
 
-    //Render transparent pass
+    if(hasTransparent) {
+      //Render transparent pass
+      accumBuffer.shape = [gl.drawingBufferWidth, gl.drawingBufferHeight]
+      accumBuffer.bind()
+      gl.clear(gl.DEPTH_BUFFER_BIT)
+      gl.colorMask(false, false, false, false)
+      gl.depthMask(true)
+      
+      //Initialize depth buffer
+      if(axes.enable) {
+        axes.draw(cameraParams)
+      }
+      if(spikes.enable && selection.objects) {
+        spikes.draw(cameraParams)
+      }
+      gl.disable(gl.CULL_FACE)
+
+      for(var i=0; i<numObjs; ++i) {
+        var obj = objects[i]
+        if(obj.isOpaque && obj.isOpaque()) {
+          obj.draw(cameraParams)
+        }
+      }
+
+      //Render transparent pass
+      gl.enable(gl.BLEND)
+      gl.blendEquation(gl.FUNC_ADD)
+      gl.blendFunc(gl.ONE, gl.ONE)
+      gl.colorMask(true, true, true, true)
+      gl.depthMask(false)
+      gl.clearColor(0,0,0,0)
+      gl.clear(gl.COLOR_BUFFER_BIT)
+      for(var i=0; i<numObjs; ++i) {
+        var obj = objects[i]
+        if(obj.isTransparent && obj.isTransparent()) {
+          obj.drawTransparent(cameraParams)
+        }
+      }
+
+      //Unbind framebuffer
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+
+      //Draw composite pass
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+      gl.disable(gl.DEPTH_TEST)
+      accumShader.bind()
+      accumBuffer.color[0].bind(0)
+      accumShader.uniforms.accumBuffer = 0
+      drawTriangle(gl)
+
+      //Turn off blending
+      gl.disable(gl.BLEND)
+    }
 
     //Clear dirty flags
     dirty = false

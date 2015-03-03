@@ -36,6 +36,9 @@
     "type": "git",
     "url": "https://github.com/mikolalysenko/gl-plot3d.git"
   },
+  "browserify": {
+    "transform": [ "glslify" ]
+  },
   "author": "Mikola Lysenko",
   "license": "MIT",
   "bugs": {
