@@ -178,7 +178,7 @@ function createScene(options) {
     }
   }
 
-  scene.addObject = function(obj) {
+  scene.add = function(obj) {
     obj.axes = axes
     objects.push(obj)
     pickBufferIds.push(-1)
@@ -187,7 +187,7 @@ function createScene(options) {
     reallocPickIds()
   }
 
-  scene.removeObject = function(obj) {
+  scene.remove = function(obj) {
     var idx = objects.indexOf(obj)
     if(idx < 0) {
       return

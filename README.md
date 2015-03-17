@@ -15,11 +15,46 @@ This module (and this whole subecosystem) skew more towards the easy-side of the
 ### Scatter plot
 
 ```javascript
+var createScene = require('gl-plot3d')
+var createScatter = require('gl-scatter-plot')
+var bunny = require('bunny')
+
+var scene = createScene()
+var scatter = createScatter(scene.gl, {
+  position:     bunny.positions,
+  size:         10,
+  glyph:        '★',
+  orthographic: true,
+  lineColor:    [0,0,0],
+  color:        [1,0,0],
+  lineWidth:    1
+})
+
+scene.add(scatter)
 ```
 
 ### Line plot
 
 ```javascript
+var createScene = require('gl-plot3d')
+var createLine = require('gl-line-plot')
+
+var scene = createScene()
+
+var points = []
+for(var t = 0; t< 1000; ++t) {
+  var theta = Math.PI * t / 200.0
+  points.push([Math.cos(theta), 0.002 * t, Math.sin(theta)])
+}
+
+var linePlot = createLine(scene.gl, {
+  position:  points,
+  lineWidth: 5,
+  color:     [1,0,0],
+  opacity:   0.5
+})
+
+scene.add(linePlot)
 ```
 
 ### Surface plot
@@ -45,7 +80,7 @@ var mesh = createMesh(scene.gl, {
 })
 
 //Add the mesh to the scene
-scene.addObject(mesh)
+scene.add(mesh)
 ```
 
 # Install
