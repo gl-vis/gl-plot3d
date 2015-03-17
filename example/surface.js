@@ -2,14 +2,9 @@
 
 var createScene = require('../scene')
 var createSurface = require('gl-surface-plot')
-var fit = require('canvas-fit')
 var ndarray = require('ndarray')
 
-var canvas = document.createElement('canvas')
-document.body.appendChild(canvas)
-window.addEventListener('resize', fit(canvas))
-
-var scene = createScene(canvas)
+var scene = createScene()
 
 var size = 64
 

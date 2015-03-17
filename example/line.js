@@ -2,13 +2,8 @@
 
 var createScene = require('../scene')
 var createLine = require('gl-line-plot')
-var fit = require('canvas-fit')
 
-var canvas = document.createElement('canvas')
-document.body.appendChild(canvas)
-window.addEventListener('resize', fit(canvas))
-
-var scene = createScene(canvas)
+var scene = createScene()
 
 var points = []
 for(var t = 0; t< 1000; ++t) {

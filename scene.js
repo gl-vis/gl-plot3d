@@ -11,6 +11,7 @@ var drawTriangle = require('a-big-triangle')
 var mouseChange  = require('mouse-change')
 var perspective  = require('gl-mat4/perspective')
 var createShader = require('./lib/shader')
+var fit          = require('canvas-fit')
 
 function MouseSelect() {
   this.mouse          = [-1,-1]
@@ -42,13 +43,24 @@ function defaultBool(x) {
   return true
 }
 
-function createScene(canvas, options) {
+function createScene(options) {
   options = options || {}
 
-  //Create WebGL context
-  var glOptions = options.gl || { premultipliedAlpha: true }
-  var gl = canvas.getContext('webgl', glOptions)
-  var premultipliedAlpha = glOptions.premultipliedAlpha
+  var canvas = options.canvas
+  if(!canvas) {
+    canvas = document.createElement('canvas')
+    document.body.appendChild(canvas)
+    window.addEventListener('resize', fit(canvas))
+  }
+
+  var gl = options.gl
+  if(!gl) {
+    var glOptions = options.glOptions || { premultipliedAlpha: true }
+    gl = canvas.getContext('webgl', glOptions)
+  }
+  if(!gl) {
+    throw new Error('webgl not supported')
+  }
 
   var viewShape = [ gl.drawingBufferWidth, gl.drawingBufferHeight ]
 
@@ -70,8 +82,7 @@ function createScene(canvas, options) {
   var cameraOptions = options.camera || {
     eye:    [0,0,2],
     center: [0,0,0],
-    up:     [0,0,0],
-    mode:   'orbit',
+    up:     [0,1,0],
     zoomMin: 0.1,
     zoomMax: 100
   }

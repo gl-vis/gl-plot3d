@@ -47,6 +47,10 @@ npm i gl-plot3d
 
 #### `var scene = require('gl-plot3d')(canvas[, options])`
 
+Creates a new scene object.
+
+* `canvas` is an HTML canvas element into which the scene is inserted.
+
 ## Methods
 
 #### `scene.addObject(obj)`
