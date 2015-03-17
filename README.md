@@ -117,3 +117,5 @@ Bounds for the scene
 
 # License
 (c) 2015 Mikola Lysenko. MIT License
+
+Development support by [plot.ly](http://plot.ly)
