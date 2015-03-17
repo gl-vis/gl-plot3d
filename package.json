@@ -8,12 +8,13 @@
     "example": "example"
   },
   "dependencies": {
-    "3d-view-controls": "^1.0.1",
     "gl-axes": "^6.0.2",
     "gl-mat4": "^1.1.2",
     "gl-select-static": "^1.0.2",
     "gl-spikes": "^2.0.1",
-    "mouse-change": "^1.1.1"
+    "mouse-change": "^1.1.1",
+    "ndarray": "^1.0.16",
+    "orbiter": "^1.0.2"
   },
   "devDependencies": {
     "canvas-fit": "^1.2.0",
@@ -37,7 +38,9 @@
     "url": "https://github.com/mikolalysenko/gl-plot3d.git"
   },
   "browserify": {
-    "transform": [ "glslify" ]
+    "transform": [
+      "glslify"
+    ]
   },
   "author": "Mikola Lysenko",
   "license": "MIT",
