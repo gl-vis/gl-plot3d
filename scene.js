@@ -2,7 +2,7 @@
 
 module.exports = createScene
 
-var createCamera = require('3d-view-controls')
+var createCamera = require('orbiter')
 var createAxes   = require('gl-axes')
 var createSpikes = require('gl-spikes')
 var createSelect = require('gl-select-static')
@@ -49,6 +49,8 @@ function createScene(canvas, options) {
   var glOptions = options.gl || { premultipliedAlpha: true }
   var gl = canvas.getContext('webgl', glOptions)
   var premultipliedAlpha = glOptions.premultipliedAlpha
+
+  var viewShape = [ gl.drawingBufferWidth, gl.drawingBufferHeight ]
 
   //Initial bounds
   var bounds = options.bounds || [[-10,-10,-10], [10,10,10]]
@@ -150,7 +152,7 @@ function createScene(canvas, options) {
         }
       }
       //Create new pick buffer
-      var nbuffer = createSelect(gl, [gl.drawingBufferWidth, gl.drawingBufferHeight])
+      var nbuffer = createSelect(gl, viewShape)
       pickBufferIds[i] = numPick
       pickBuffers.push(nbuffer)
       pickBufferCount.push(pickCount)
@@ -164,6 +166,7 @@ function createScene(canvas, options) {
   }
 
   scene.addObject = function(obj) {
+    obj.axes = axes
     objects.push(obj)
     pickBufferIds.push(-1)
     dirty = true
@@ -193,12 +196,14 @@ function createScene(canvas, options) {
 
   //Update mouse position
   var mouseRotating = false
+
   mouseChange(canvas, function(buttons, x, y) {
     var numPick = pickBuffers.length
     var numObjs = objects.length
     var prevObj = selection.object
     selection.distance = Infinity
-    selection.mouse = [x, y]
+    selection.mouse[0] = x
+    selection.mouse[1] = y
     selection.object = null
     selection.screen = null
     selection.dataCoordinate = selection.dataPosition = null
@@ -224,13 +229,13 @@ function createScene(canvas, options) {
             }
             var objPick = obj.pick(result)
             if(objPick) {
-              selection.screen = result.coord
-              selection.distance = result.distance
-              selection.object = obj
-              selection.index = objPick.distance
-              selection.dataPosition = objPick.position
+              selection.screen         = result.coord
+              selection.distance       = result.distance
+              selection.object         = obj
+              selection.index          = objPick.distance
+              selection.dataPosition   = objPick.position
               selection.dataCoordinate = objPick.dataCoordinate
-              selection.data = objPick
+              selection.data           = objPick
             }
           }
         }
@@ -262,7 +267,7 @@ function createScene(canvas, options) {
     var numPick = pickBuffers.length
     for(var j=0; j<numPick; ++j) {
       var buf = pickBuffers[j]
-      buf.shape = [gl.drawingBufferWidth, gl.drawingBufferHeight]
+      buf.shape = viewShape
       buf.begin()
       for(var i=0; i<numObjs; ++i) {
         if(pickBufferIds[i] !== j) {
@@ -355,6 +360,8 @@ function createScene(canvas, options) {
     //Get scene
     var width  = gl.drawingBufferWidth
     var height = gl.drawingBufferHeight
+    viewShape[0] = width
+    viewShape[1] = height
 
     //Compute camera parameters
     perspective(projection,
@@ -434,19 +441,22 @@ function createScene(canvas, options) {
     gl.enable(gl.DEPTH_TEST)
     gl.depthFunc(gl.LEQUAL)
     gl.disable(gl.BLEND)
+    gl.disable(gl.CULL_FACE)  //most visualization surfaces are 2 sided
 
     //Render opaque pass
     var hasTransparent = false
     if(axes.enable) {
+      hasTransparent = hasTransparent || axes.isTransparent()
       axes.draw(cameraParams)
     }
+    spikes.axes = axes
     if(selection.object) {
       spikes.draw(cameraParams)
     }
-    gl.disable(gl.CULL_FACE)
     
     for(var i=0; i<numObjs; ++i) {
       var obj = objects[i]
+      obj.axes = axes
       if(obj.isOpaque && obj.isOpaque()) {
         obj.draw(cameraParams)
       }
@@ -457,21 +467,17 @@ function createScene(canvas, options) {
 
     if(hasTransparent) {
       //Render transparent pass
-      accumBuffer.shape = [gl.drawingBufferWidth, gl.drawingBufferHeight]
+      accumBuffer.shape = viewShape
       accumBuffer.bind()
       gl.clear(gl.DEPTH_BUFFER_BIT)
       gl.colorMask(false, false, false, false)
       gl.depthMask(true)
+      gl.depthFunc(gl.LESS)
       
-      //Initialize depth buffer
-      if(axes.enable) {
-        axes.draw(cameraParams)
+      //Render forward facing objects
+      if(axes.enable && axes.isTransparent()) {
+        axes.drawTransparent(cameraParams)
       }
-      if(spikes.enable && selection.objects) {
-        spikes.draw(cameraParams)
-      }
-      gl.disable(gl.CULL_FACE)
-
       for(var i=0; i<numObjs; ++i) {
         var obj = objects[i]
         if(obj.isOpaque && obj.isOpaque()) {
@@ -487,6 +493,11 @@ function createScene(canvas, options) {
       gl.depthMask(false)
       gl.clearColor(0,0,0,0)
       gl.clear(gl.COLOR_BUFFER_BIT)
+
+      if(axes.isTransparent()) {
+        axes.drawTransparent(cameraParams)
+      }
+
       for(var i=0; i<numObjs; ++i) {
         var obj = objects[i]
         if(obj.isTransparent && obj.isTransparent()) {
