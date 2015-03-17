@@ -1,37 +1,50 @@
 gl-plot3d
-==========
-A highly opinionated wrapper module which handles camera set up, picking, axes and rendering order.  Meant to be used with the following visualization modules:
+=========
+This is the core module for 3D plotting in gl-vis. It is compatible with the following modules:
 
-* [gl-simplicial-complex](https://github.com/mikolalysenko/gl-simplicial-complex)
-* [gl-surface-plot](https://github.com/mikolalysenko/gl-surface-plot)
-* [gl-scatter](https://github.com/mikolalysenko/gl-scatter-plot)
-* [gl-line-plot](https://github.com/mikolalysenko/gl-line-plot)
-* [gl-error-bars](https://github.com/mikolalysenko/gl-error-bars)
+* [gl-scatter](https://github.com/gl-vis/gl-scatter-plot): 3D scatter plots
+* [gl-line-plot](https://github.com/gl-vis/gl-line-plot): 3D line plots
+* [gl-surface-plot](https://github.com/gl-vis/gl-surface-plot): 3D surface plots
+* [gl-simplicial-complex](https://github.com/gl-vis/gl-simplicial-complex): General mesh drawing
+* [gl-error-bars](https://github.com/gl-vis/gl-error-bars): Error bars
 
-Lots of options, but reasonable defaults which should make it suitable for small projects like mesh viewers or quick data visualization.
+This module (and this whole subecosystem) skew more towards the easy-side of the simple vs. easy tradeoff spectrum.  It has lots of options, but has opinionated and reasonable defaults which should make it suitable for small projects like mesh viewers or knocking out one-off data visualizations.
 
-# Example
+# Examples
+
+### Scatter plot
+
+```javascript
+```
+
+### Line plot
+
+```javascript
+```
+
+### Surface plot
+
+```javascript
+```
+
+### Drawing a mesh
 
 ```javascript
 var createScene = require('gl-plot3d')
-var createMesh = require('gl-simplicial-complex')
-var bunny = require('bunny')
-var fit = require('canvas-fit')
+var createMesh  = require('gl-simplicial-complex')
+var bunny       = require('bunny')
 
-var canvas = document.createElement('canvas')
-document.body.appendChild(canvas)
-window.addEventListener('resize', fit(canvas))
+//Create the scene
+var scene = createScene()
 
-var scene = createScene(canvas, {
-  autoBounds: true
-})
-
+//Create a mesh object for drawing a bunny
 var mesh = createMesh(scene.gl, {
   cells:      bunny.cells,
   positions:  bunny.positions,
   colormap:   'jet'
 })
 
+//Add the mesh to the scene
 scene.addObject(mesh)
 ```
 
@@ -49,31 +62,58 @@ npm i gl-plot3d
 
 Creates a new scene object.
 
-* `canvas` is an HTML canvas element into which the scene is inserted.
+* `canvas` is an HTML canvas element into which the scene is inserted. (If not specified, a new fullscreen canvas is created and appended to the document)
+* `gl` is a WebGL context (If not specified, a new context is created)
+* `glOptions` is a set of options passed to the new WebGL context, `gl` is not specified
+* `camera` an object storing camera options.  See [orbiter](https://github.com/mikolalysenko/orbiter) for more details
+* `axes` options passed to the axes object.  See [gl-axes](https://github.com/mikolalysenko/gl-axes) for more details
+* `spikes` options passed to the axes spikes.  See [gl-spikes](https://github.com/mikolalysenko/gl-spikes) for more details
+* `clearColor` a length 4 array of color values for the clear
+* `fovy` the vertical field of view
+* `zNear` near clip plane distance
+* `zFar` far clip plane distance
+* `pickRadius` the distance for mouse picking
+* `autoBounds` a flag, if set automatically recalculates object bounds (default `true`)
+* `autoScale` a flag, if set automatically scales the data set to unit length, preserving aspect ratio (default `true`)
+* `autoCenter` a flag, if set translates data to the center of the coordinate system (default `true`)
+* `clipToBounds` clip data points to remain within the axes bounds
+* `snapToData` snap selections to data points
+* `onselect` called whenever the currently highlighted data point changes
+* `onrender` called whenever the scene is drawn
 
 ## Methods
 
 #### `scene.addObject(obj)`
+Adds a new object to the scene
 
 #### `scene.removeObject(obj)`
+Removes an object from the scene
 
 #### `scene.dispose()`
-
+Destroys the scene and releases all associated resources.  Also destroys all attached objects.
 
 ## Properties
 
+#### `scene.selection`
+Information about the currently selected object in the scene.
+
+#### `scene.objects`
+A list of all objects in the scene.
+
+#### `scene.canvas`
+The canvas element associated with the scene
+
 #### `scene.gl`
+The WebGL context associated with the scene.
 
 #### `scene.axes`
+A reference to the axes object for the scene
 
 #### `scene.camera`
+A reference to the camera object for the scene
 
 #### `scene.bounds`
+Bounds for the scene
 
-#### `scene.zNear`
-
-#### `scene.zFar`
-
-#### `scene.fovy`
-
-#### `scene.clearColor`
+# License
+(c) 2015 Mikola Lysenko. MIT License

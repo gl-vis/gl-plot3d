@@ -126,7 +126,9 @@ function createScene(options) {
     autoScale:    defaultBool(options.autoScale),
     autoCenter:   defaultBool(options.autoCenter),
     clipToBounds: defaultBool(options.clipToBounds),
-    snapToData:   !!options.snapToData
+    snapToData:   !!options.snapToData,
+    onselect:     scene.onselect || null,
+    onrender:     scene.onrender || null
   }
 
   var projection     = new Array(16)
@@ -219,6 +221,8 @@ function createScene(options) {
     selection.screen = null
     selection.dataCoordinate = selection.dataPosition = null
 
+    var change = false
+
     if(buttons) {
       mouseRotating = true
     } else {
@@ -247,6 +251,7 @@ function createScene(options) {
               selection.dataPosition   = objPick.position
               selection.dataCoordinate = objPick.dataCoordinate
               selection.data           = objPick
+              change = true
             }
           }
         }
@@ -263,6 +268,11 @@ function createScene(options) {
         selection.object.highlight(selection.data)
       }
       dirty = true
+    }
+
+    change = change || (selection.object !== prevObj)
+    if(change) {
+      scene.onselect(selection)
     }
   })
 
@@ -432,6 +442,11 @@ function createScene(options) {
 
     if(!dirty) {
       return
+    }
+
+    //Call render callback
+    if(scene.onrender) {
+      scene.onrender()
     }
 
     //Read value
