@@ -130,6 +130,8 @@ scene.add(surface)
 
 ### Meshes
 
+[<img src="images/mesh3d.png" width="400px" alt="3D parametric surface plot">](http://requirebin.com/?gist=0d4c38d1aa80edbe4a28) [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=0d4c38d1aa80edbe4a28)
+
 ```javascript
 var createScene = require('gl-plot3d')
 var createMesh  = require('gl-mesh3d')
