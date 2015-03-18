@@ -130,7 +130,7 @@ scene.add(surface)
 
 ### Meshes
 
-[<img src="images/mesh3d.png" width="400px" alt="3D parametric surface plot">](http://requirebin.com/?gist=0d4c38d1aa80edbe4a28) [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=0d4c38d1aa80edbe4a28)
+[<img src="images/mesh3d.png" width="400px" alt="3D mesh">](http://requirebin.com/?gist=0d4c38d1aa80edbe4a28) [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=0d4c38d1aa80edbe4a28)
 
 ```javascript
 var createScene = require('gl-plot3d')
@@ -153,6 +153,8 @@ scene.add(mesh)
 ```
 
 ### Wireframe meshes
+
+[<img src="images/wire3d.png" width="400px" alt="3D wire frame">](http://requirebin.com/?gist=37a8df8ace4ecafa010f) [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=37a8df8ace4ecafa010f)
 
 ```javascript
 var createScene = require('gl-plot3d')
