@@ -487,6 +487,8 @@ function createScene(options) {
     if(selection.object) {
       spikes.draw(cameraParams)
     }
+
+    gl.disable(gl.CULL_FACE)  //most visualization surfaces are 2 sided
     
     for(var i=0; i<numObjs; ++i) {
       var obj = objects[i]
