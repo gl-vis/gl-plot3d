@@ -2,13 +2,12 @@ gl-plot3d
 =========
 This is the core module for 3D plotting in gl-vis. It is compatible with the following modules:
 
-* [gl-scatter](https://github.com/gl-vis/gl-scatter-plot): 3D scatter plots
-* [gl-line-plot](https://github.com/gl-vis/gl-line-plot): 3D line plots
-* [gl-surface-plot](https://github.com/gl-vis/gl-surface-plot): 3D surface plots
-* [gl-simplicial-complex](https://github.com/gl-vis/gl-simplicial-complex): General mesh drawing
-* [gl-error-bars](https://github.com/gl-vis/gl-error-bars): Error bars
+* [gl-scatter3d](https://github.com/gl-vis/gl-scatter3d): 3D scatter plots
+* [gl-line3d](https://github.com/gl-vis/gl-line3d): 3D line plots
+* [gl-surface3d](https://github.com/gl-vis/gl-surface3d): 3D surface plots
+* [gl-mesh3d](https://github.com/gl-vis/gl-mesh3d): General mesh drawing
 
-This module (and this whole subecosystem) skew more towards the easy-side of the simple vs. easy tradeoff spectrum.  It has lots of options, but has opinionated and reasonable defaults which should make it suitable for small projects like mesh viewers or knocking out one-off data visualizations.
+This module (and this whole subecosystem) skew more towards the easy-side of the simple vs. easy tradeoff spectrum.  It has lots of options, but has opinionated and reasonable defaults which should make it suitable for small projects like mesh viewers or knocking out one-off data visualizations.  If you want more precise, low level control, check out [stack.gl](https://stack.gl).
 
 # Examples
 
@@ -79,8 +78,9 @@ fill(field, function(x,y) {
 
 //Create surface plot
 var surface = createSurfacePlot({
-  gl:    scene.gl,
-  field: field
+  gl:             scene.gl,
+  field:          field,
+  contourProject: true
 })
 
 scene.add(surface)
