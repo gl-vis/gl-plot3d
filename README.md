@@ -137,10 +137,8 @@ var createScene = require('gl-plot3d')
 var createMesh  = require('gl-mesh3d')
 var bunny       = require('bunny')
 
-//Create the scene
 var scene = createScene()
 
-//Create a mesh object for drawing a bunny
 var mesh = createMesh({
   gl:         scene.gl,
   cells:      bunny.cells,
@@ -148,7 +146,6 @@ var mesh = createMesh({
   colormap:   'jet'
 })
 
-//Add the mesh to the scene
 scene.add(mesh)
 ```
 
