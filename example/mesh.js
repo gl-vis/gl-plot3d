@@ -1,7 +1,7 @@
 'use strict'
 
 var createScene = require('../scene')
-var createMesh = require('gl-simplicial-complex')
+var createMesh = require('gl-mesh3d')
 var bunny = require('bunny')
 var fit = require('canvas-fit')
 

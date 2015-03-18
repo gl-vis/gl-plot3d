@@ -15,7 +15,7 @@ This module (and this whole subecosystem) skew more towards the easy-side of the
 
 ```javascript
 var createScene   = require('gl-plot3d')
-var createScatter = require('gl-scatter-plot')
+var createScatter = require('gl-scatter3d')
 var bunny         = require('bunny')
 
 var scene = createScene()
@@ -38,7 +38,7 @@ scene.add(scatter)
 
 ```javascript
 var createScene = require('gl-plot3d')
-var createLine  = require('gl-line-plot')
+var createLine  = require('gl-line3d')
 
 var scene = createScene()
 
@@ -63,7 +63,7 @@ scene.add(linePlot)
 
 ```javascript
 var createScene       = require('gl-plot3d')
-var createSurfacePlot = require('gl-surface-plot')
+var createSurfacePlot = require('gl-surface3d')
 var ndarray           = require('ndarray')
 var fill              = require('ndarray-fill')
 var diric             = require('dirichlet')
@@ -90,7 +90,7 @@ scene.add(surface)
 
 ```javascript
 var createScene = require('gl-plot3d')
-var createMesh  = require('gl-simplicial-complex')
+var createMesh  = require('gl-mesh3d')
 var bunny       = require('bunny')
 
 //Create the scene
