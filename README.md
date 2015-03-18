@@ -39,7 +39,7 @@ scene.add(scatter)
 
 ### Line plot
 
-[<img src="images/scatter3d.png" width="400px" alt="3D scatter plot">](http://requirebin.com/?gist=16dee68aba0f2aee6068) [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=16dee68aba0f2aee6068)
+[<img src="images/line3d.png" width="400px" alt="3D scatter plot">](http://requirebin.com/?gist=16dee68aba0f2aee6068) [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=16dee68aba0f2aee6068)
 
 ```javascript
 var createScene = require('gl-plot3d')
