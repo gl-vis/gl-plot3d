@@ -127,8 +127,9 @@ function createScene(options) {
     autoCenter:   defaultBool(options.autoCenter),
     clipToBounds: defaultBool(options.clipToBounds),
     snapToData:   !!options.snapToData,
-    onselect:     scene.onselect || null,
-    onrender:     scene.onrender || null
+    onselect:     options.onselect || null,
+    onrender:     options.onrender || null,
+    onclick:      options.onclick  || null
   }
 
   var projection     = new Array(16)
@@ -210,6 +211,8 @@ function createScene(options) {
   //Update mouse position
   var mouseRotating = false
 
+  var prevButtons = 0
+
   mouseChange(canvas, function(buttons, x, y) {
     var numPick = pickBuffers.length
     var numObjs = objects.length
@@ -271,9 +274,14 @@ function createScene(options) {
     }
 
     change = change || (selection.object !== prevObj)
-    if(change) {
+    if(change && scene.onselect) {
       scene.onselect(selection)
     }
+
+    if((buttons & 1) && !(prevButtons & 1) && scene.onclick) {
+      scene.onclick(selection)
+    }
+    prevButtons = buttons
   })
 
   //Render the scene for mouse picking

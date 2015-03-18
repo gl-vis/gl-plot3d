@@ -10,7 +10,8 @@ document.body.appendChild(canvas)
 window.addEventListener('resize', fit(canvas))
 
 var scene = createScene(canvas)
-var mesh = createMesh(scene.gl, {
+var mesh = createMesh({
+  gl:         scene.gl,
   cells:      bunny.cells,
   positions:  bunny.positions,
   colormap:   'jet'

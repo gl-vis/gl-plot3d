@@ -20,7 +20,8 @@ var createScatter = require('gl-scatter-plot')
 var bunny = require('bunny')
 
 var scene = createScene()
-var scatter = createScatter(scene.gl, {
+var scatter = createScatter({
+  gl:           scene.gl,
   position:     bunny.positions,
   size:         10,
   glyph:        '★',
@@ -48,6 +49,7 @@ for(var t = 0; t< 1000; ++t) {
 }
 
 var linePlot = createLine(scene.gl, {
+  gl:        scene.gl,
   position:  points,
   lineWidth: 5,
   color:     [1,0,0],
@@ -60,6 +62,27 @@ scene.add(linePlot)
 ### Surface plot
 
 ```javascript
+var createScene = require('gl-plot3d')
+var createSurfacePlot = require("gl-surface-plot')
+var ndarray = require('ndarray')
+var fill = require('ndarray-fill')
+var diric = require('dirichlet')
+
+var scene = createScene()
+
+//Create field
+var field = ndarray(new Float32Array(512*512), [512,512])
+fill(field, function(x,y) {
+  return 128 * diric(10, 10.0*(x-256)/512) * diric(10, 10.0*(y-256)/512)
+})
+
+//Create surface plot
+var surface = createSurfacePlot({
+  gl:    scene.gl,
+  field: field
+})
+
+scene.add(surface)
 ```
 
 ### Drawing a mesh
@@ -73,7 +96,8 @@ var bunny       = require('bunny')
 var scene = createScene()
 
 //Create a mesh object for drawing a bunny
-var mesh = createMesh(scene.gl, {
+var mesh = createMesh({
+  gl:         scene.gl,
   cells:      bunny.cells,
   positions:  bunny.positions,
   colormap:   'jet'
