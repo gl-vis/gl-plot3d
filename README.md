@@ -13,6 +13,8 @@ This module (and this whole subecosystem) skew more towards the easy-side of the
 
 ### Scatter plot
 
+[![3D scatter plot](images/scatter3d.png)](http://requirebin.com/?gist=cf75d78184f6b8cac15a)
+
 ```javascript
 var createScene   = require('gl-plot3d')
 var createScatter = require('gl-scatter3d')
@@ -21,18 +23,21 @@ var bunny         = require('bunny')
 var scene = createScene()
 
 var scatter = createScatter({
-  gl:           scene.gl,
-  position:     bunny.positions,
-  size:         10,
-  glyph:        '★',
-  orthographic: true,
-  lineColor:    [0,0,0],
-  color:        [1,0,0],
-  lineWidth:    1
+  gl:             scene.gl,
+  position:       bunny.positions,
+  size:           10,
+  glyph:          '★',
+  orthographic:   true,
+  lineColor:      [0,0,0],
+  color:          [1,0,0],
+  lineWidth:      1,
+  projectOpacity: 0.3
 })
 
 scene.add(scatter)
 ```
+
+[![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=cf75d78184f6b8cac15a)
 
 ### Line plot
 
