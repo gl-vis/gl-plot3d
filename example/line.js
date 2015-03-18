@@ -1,7 +1,7 @@
 'use strict'
 
 var createScene = require('../scene')
-var createLine = require('gl-line-plot')
+var createLine = require('gl-line3d')
 
 var scene = createScene()
 
@@ -11,7 +11,8 @@ for(var t = 0; t< 1000; ++t) {
   points.push([Math.cos(theta), 0.002 * t, Math.sin(theta)])
 }
 
-var linePlot = createLine(scene.gl, {
+var linePlot = createLine({
+  gl:        scene.gl,
   position:  points,
   lineWidth: 5,
   color:     [1,0,0]
@@ -19,4 +20,4 @@ var linePlot = createLine(scene.gl, {
 
 linePlot.opacity = 0.5
 
-scene.addObject(linePlot)
+scene.add(linePlot)
