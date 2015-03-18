@@ -15,11 +15,12 @@ This module (and this whole subecosystem) skew more towards the easy-side of the
 ### Scatter plot
 
 ```javascript
-var createScene = require('gl-plot3d')
+var createScene   = require('gl-plot3d')
 var createScatter = require('gl-scatter-plot')
-var bunny = require('bunny')
+var bunny         = require('bunny')
 
 var scene = createScene()
+
 var scatter = createScatter({
   gl:           scene.gl,
   position:     bunny.positions,
@@ -38,7 +39,7 @@ scene.add(scatter)
 
 ```javascript
 var createScene = require('gl-plot3d')
-var createLine = require('gl-line-plot')
+var createLine  = require('gl-line-plot')
 
 var scene = createScene()
 
@@ -62,11 +63,11 @@ scene.add(linePlot)
 ### Surface plot
 
 ```javascript
-var createScene = require('gl-plot3d')
+var createScene       = require('gl-plot3d')
 var createSurfacePlot = require('gl-surface-plot')
-var ndarray = require('ndarray')
-var fill = require('ndarray-fill')
-var diric = require('dirichlet')
+var ndarray           = require('ndarray')
+var fill              = require('ndarray-fill')
+var diric             = require('dirichlet')
 
 var scene = createScene()
 
