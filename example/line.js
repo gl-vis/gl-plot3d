@@ -18,6 +18,4 @@ var linePlot = createLine({
   color:     [1,0,0]
 })
 
-linePlot.opacity = 0.5
-
 scene.add(linePlot)

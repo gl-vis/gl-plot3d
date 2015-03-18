@@ -39,6 +39,8 @@ scene.add(scatter)
 
 ### Line plot
 
+[<img src="images/scatter3d.png" width="400px" alt="3D scatter plot">](http://requirebin.com/?gist=16dee68aba0f2aee6068) [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=16dee68aba0f2aee6068)
+
 ```javascript
 var createScene = require('gl-plot3d')
 var createLine  = require('gl-line3d')
@@ -51,12 +53,11 @@ for(var t = 0; t< 1000; ++t) {
   points.push([Math.cos(theta), 0.002 * t, Math.sin(theta)])
 }
 
-var linePlot = createLine(scene.gl, {
+var linePlot = createLine({
   gl:        scene.gl,
   position:  points,
   lineWidth: 5,
-  color:     [1,0,0],
-  opacity:   0.5
+  color:     [1,0,0]
 })
 
 scene.add(linePlot)
