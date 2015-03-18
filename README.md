@@ -63,7 +63,7 @@ scene.add(linePlot)
 
 ```javascript
 var createScene = require('gl-plot3d')
-var createSurfacePlot = require("gl-surface-plot')
+var createSurfacePlot = require('gl-surface-plot')
 var ndarray = require('ndarray')
 var fill = require('ndarray-fill')
 var diric = require('dirichlet')
