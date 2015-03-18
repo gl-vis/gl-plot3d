@@ -59,7 +59,7 @@ var linePlot = createLine(scene.gl, {
 scene.add(linePlot)
 ```
 
-### Surface plot
+### Heightmaps
 
 ```javascript
 var createScene       = require('gl-plot3d')
@@ -86,7 +86,43 @@ var surface = createSurfacePlot({
 scene.add(surface)
 ```
 
-### Drawing a mesh
+### Parametric surfaces
+
+```javascript
+var createScene   = require('gl-plot3d')
+var createSurface = require('gl-surface3d')
+var ndarray       = require('ndarray')
+
+var scene = createScene()
+
+//Create parameters for a torus
+var size = 64
+var coords = [
+  ndarray(new Float32Array(4*(size+1)*(size+1)), [2*size+1,2*size+1]),
+  ndarray(new Float32Array(4*(size+1)*(size+1)), [2*size+1,2*size+1]),
+  ndarray(new Float32Array(4*(size+1)*(size+1)), [2*size+1,2*size+1])
+]
+for(var i=0; i<=2*size; ++i) {
+  var theta = Math.PI * (i - size) / size
+  for(var j=0; j<=2*size; ++j) {
+    var phi = Math.PI * (j - size) / size
+    coords[0].set(i, j, (50.0 + 20.0 * Math.cos(theta)) * Math.cos(phi))
+    coords[1].set(i, j, (50.0 + 20.0 * Math.cos(theta)) * Math.sin(phi))
+    coords[2].set(i, j, 20.0 * Math.sin(theta))
+  }
+}
+
+var surface = createSurface({
+  gl:             scene.gl,
+  coords:         coords,
+  contourProject: true,
+  showContour:    true
+})
+
+scene.add(surface)
+```
+
+### Meshes
 
 ```javascript
 var createScene = require('gl-plot3d')
@@ -105,6 +141,26 @@ var mesh = createMesh({
 })
 
 //Add the mesh to the scene
+scene.add(mesh)
+```
+
+### Wireframe meshes
+
+```javascript
+var createScene = require('gl-plot3d')
+var createMesh  = require('gl-mesh3d')
+var bunny       = require('bunny')
+var sc          = require('simplicial-complex')
+
+var scene = createScene()
+
+var mesh = createMesh({
+  gl:         scene.gl,
+  cells:      sc.skeleton(bunny.cells, 1),
+  positions:  bunny.positions,
+  colormap:   'jet'
+})
+
 scene.add(mesh)
 ```
 

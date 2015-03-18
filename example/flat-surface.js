@@ -1,5 +1,5 @@
 var createScene = require('../scene')
-var createSurfacePlot = require("gl-surface-plot")
+var createSurfacePlot = require("gl-surface3d")
 var ndarray = require("ndarray")
 var fill = require("ndarray-fill")
 var diric = require("dirichlet")
@@ -15,7 +15,8 @@ fill(field, function(x,y) {
 //Create surface plot
 var surface = createSurfacePlot({
   gl:    scene.gl,
-  field: field
+  field: field,
+  contourProject: true
 })
 
 scene.add(surface)

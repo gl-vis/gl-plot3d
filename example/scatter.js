@@ -1,11 +1,13 @@
 'use strict'
 
 var createScene = require('../scene')
-var createScatter = require('gl-scatter-plot')
+var createScatter = require('gl-scatter3d')
 var bunny = require('bunny')
 
 var scene = createScene()
-var scatter = createScatter(scene.gl, {
+
+var scatter = createScatter({
+  gl:           scene.gl,
   position:     bunny.positions,
   size:         10,
   glyph:        '★',
@@ -15,4 +17,4 @@ var scatter = createScatter(scene.gl, {
   lineWidth:    1
 })
 
-scene.addObject(scatter)
+scene.add(scatter)

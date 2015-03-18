@@ -1,7 +1,7 @@
 'use strict'
 
 var createScene = require('../scene')
-var createSurface = require('gl-surface-plot')
+var createSurface = require('gl-surface3d')
 var ndarray = require('ndarray')
 
 var scene = createScene()

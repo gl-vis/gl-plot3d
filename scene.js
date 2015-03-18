@@ -3,8 +3,8 @@
 module.exports = createScene
 
 var createCamera = require('orbiter')
-var createAxes   = require('gl-axes')
-var createSpikes = require('gl-spikes')
+var createAxes   = require('gl-axes3d')
+var createSpikes = require('gl-spikes3d')
 var createSelect = require('gl-select-static')
 var createFBO    = require('gl-fbo')
 var drawTriangle = require('a-big-triangle')
