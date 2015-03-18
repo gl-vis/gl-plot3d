@@ -17,4 +17,4 @@ var mesh = createMesh({
   colormap:   'jet'
 })
 
-scene.addObject(mesh)
+scene.add(mesh)
