@@ -242,3 +242,5 @@ Bounds for the scene
 (c) 2015 Mikola Lysenko. MIT License
 
 Development support by [plot.ly](http://plot.ly)
+
+[<img src="images/plotly.png" width="250px">](http://plot.ly)
