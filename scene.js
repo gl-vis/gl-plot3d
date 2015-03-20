@@ -46,12 +46,19 @@ function defaultBool(x) {
 function createScene(options) {
   options = options || {}
 
+  var pixelRatio = window.devicePixelRatio || 1
+
+  var stopped = false
+
   var canvas = options.canvas
   if(!canvas) {
     canvas = document.createElement('canvas')
-    document.body.appendChild(canvas)
-    window.addEventListener('resize', fit(canvas))
+    var container = (options.container || document.body)
+    container.appendChild(canvas)
   }
+
+  var resizeListener = fit(canvas, options.container, pixelRatio)
+  window.addEventListener('resize', resizeListener)
 
   var gl = options.gl
   if(!gl) {
@@ -63,6 +70,7 @@ function createScene(options) {
   }
 
   var viewShape = [ gl.drawingBufferWidth, gl.drawingBufferHeight ]
+  var pickShape = [ (gl.drawingBufferWidth/pixelRatio)|0, (gl.drawingBufferHeight/pixelRatio)|0 ]
 
   //Initial bounds
   var bounds = options.bounds || [[-10,-10,-10], [10,10,10]]
@@ -201,6 +209,8 @@ function createScene(options) {
   }
 
   scene.dispose = function() {
+    stopped = true
+    window.removeEventListener('resize', resizeListener)
     axes.dispose()
     spikes.dispose()
     for(var i=0; i<objects.length; ++i) {
@@ -296,7 +306,7 @@ function createScene(options) {
     var numPick = pickBuffers.length
     for(var j=0; j<numPick; ++j) {
       var buf = pickBuffers[j]
-      buf.shape = viewShape
+      buf.shape = pickShape
       buf.begin()
       for(var i=0; i<numObjs; ++i) {
         if(pickBufferIds[i] !== j) {
@@ -317,6 +327,10 @@ function createScene(options) {
 
   //Draw the whole scene
   function render() {
+    if(stopped) {
+      return
+    }
+
     requestAnimationFrame(render)
 
     //Tick camera
@@ -391,6 +405,8 @@ function createScene(options) {
     var height = gl.drawingBufferHeight
     viewShape[0] = width
     viewShape[1] = height
+    pickShape[0] = (width/pixelRatio)|0
+    pickShape[1] = (height/pixelRatio)|0
 
     //Compute camera parameters
     perspective(projection,
