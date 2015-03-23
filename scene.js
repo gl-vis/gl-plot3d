@@ -4,6 +4,7 @@ module.exports = createScene
 
 var createCamera = require('orbiter')
 var createAxes   = require('gl-axes3d')
+var axesRanges   = require('gl-axes3d/properties')
 var createSpikes = require('gl-spikes3d')
 var createSelect = require('gl-select-static')
 var createFBO    = require('gl-fbo')
@@ -11,7 +12,6 @@ var drawTriangle = require('a-big-triangle')
 var mouseChange  = require('mouse-change')
 var perspective  = require('gl-mat4/perspective')
 var createShader = require('./lib/shader')
-var fit          = require('canvas-fit')
 
 function MouseSelect() {
   this.mouse          = [-1,-1]
@@ -46,8 +46,6 @@ function defaultBool(x) {
 function createScene(options) {
   options = options || {}
 
-  var pixelRatio = window.devicePixelRatio || 1
-
   var stopped = false
 
   var canvas = options.canvas
@@ -56,9 +54,6 @@ function createScene(options) {
     var container = (options.container || document.body)
     container.appendChild(canvas)
   }
-
-  var resizeListener = fit(canvas, options.container, pixelRatio)
-  window.addEventListener('resize', resizeListener)
 
   var gl = options.gl
   if(!gl) {
@@ -70,7 +65,7 @@ function createScene(options) {
   }
 
   var viewShape = [ gl.drawingBufferWidth, gl.drawingBufferHeight ]
-  var pickShape = [ (gl.drawingBufferWidth/pixelRatio)|0, (gl.drawingBufferHeight/pixelRatio)|0 ]
+  var pickShape = [ (gl.drawingBufferWidth/scene.pixelRatio)|0, (gl.drawingBufferHeight/scene.pixelRatio)|0 ]
 
   //Initial bounds
   var bounds = options.bounds || [[-10,-10,-10], [10,10,10]]
@@ -115,31 +110,6 @@ function createScene(options) {
   var dirty       = true
   var pickDirty   = true
   
-  //Create scene object
-  var scene = {
-    gl:           gl,
-    canvas:       canvas,
-    selection:    selection,
-    camera:       camera,
-    axes:         axes,
-    spikes:       spikes,
-    bounds:       bounds,
-    objects:      objects,
-    pickRadius:   options.pickRadius || 10,
-    zNear:        options.zNear || 0.01,
-    zFar:         options.zFar  || 1000,
-    fovy:         options.fovy  || Math.PI/4,
-    clearColor:   options.clearColor || [0,0,0,0],
-    autoBounds:   defaultBool(options.autoBounds),
-    autoScale:    defaultBool(options.autoScale),
-    autoCenter:   defaultBool(options.autoCenter),
-    clipToBounds: defaultBool(options.clipToBounds),
-    snapToData:   !!options.snapToData,
-    onselect:     options.onselect || null,
-    onrender:     options.onrender || null,
-    onclick:      options.onclick  || null
-  }
-
   var projection     = new Array(16)
   var model          = new Array(16)
   
@@ -150,6 +120,67 @@ function createScene(options) {
   }
 
   var pickDirty = true
+  //Create scene object
+  var scene = {
+    gl:           gl,
+    pixelRatio:   options.pixelRatio || parseFloat(window.devicePixelRatio),
+    canvas:       canvas,
+    selection:    selection,
+    camera:       camera,
+    axes:         axes,
+    axesPixels:   null,
+    spikes:       spikes,
+    bounds:       bounds,
+    objects:      objects,
+    pickRadius:   options.pickRadius || 10,
+    zNear:        options.zNear || 0.01,
+    zFar:         options.zFar  || 1000,
+    fovy:         options.fovy  || Math.PI/4,
+    clearColor:   options.clearColor || [0,0,0,0],
+    autoResize:   defaultBool(options.autoResize),
+    autoBounds:   defaultBool(options.autoBounds),
+    autoScale:    defaultBool(options.autoScale),
+    autoCenter:   defaultBool(options.autoCenter),
+    clipToBounds: defaultBool(options.clipToBounds),
+    snapToData:   !!options.snapToData,
+    onselect:     options.onselect || null,
+    onrender:     options.onrender || null,
+    onclick:      options.onclick  || null,
+    shape:        viewShape,
+    cameraParams: cameraParams
+  }
+
+
+  var fitFunc = fit(canvas, options.container, pixelRatio)
+  function resizeListener() {
+    if(!scene.autoResize) {
+      return
+    }
+    var style = canvas.style
+    style.position = style.position || 'absolute'
+    style.left     = '0px'
+    style.right    = '0px'
+    var parent = canvas.parentNode
+    var width = 0
+    var height = 0
+    if(p && p !== document.body) {
+      width  = parent.clientWidth
+      height = parent.clientHeight
+    } else {
+      width  = window.innerWidth
+      height = window.innerHeight
+    }
+    canvas.width  = Math.ceil(width  * scene.devicePixelRatio)|0
+    canvas.height = Math.ceil(height * scene.devicePixelRatio)|0
+    style.width   = width  + 'px'
+    style.height  = height + 'px'
+  }
+  if(scene.autoResize) {
+    resizeListener()
+  }
+
+  window.addEventListener('resize', resizeListener)
+
 
   function reallocPickIds() {
     var numObjs = objects.length
@@ -467,6 +498,9 @@ function createScene(options) {
     if(!dirty) {
       return
     }
+
+    //Recalculate pixel data
+    scene.axesPixels = axesRanges(scene.axes, cameraParams, width, height)
 
     //Call render callback
     if(scene.onrender) {
