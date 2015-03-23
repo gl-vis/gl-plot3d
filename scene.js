@@ -48,7 +48,7 @@ function createScene(options) {
 
   var stopped = false
 
-  var pixelRatio = options.pixelRation || parseFloat(window.devicePixelRatio)
+  var pixelRatio = options.pixelRatio || parseFloat(window.devicePixelRatio)
 
   var canvas = options.canvas
   if(!canvas) {
@@ -355,6 +355,7 @@ function createScene(options) {
         }
         var obj = objects[i]
         if(obj.drawPick) {
+          obj.pixelRatio = 1
           obj.drawPick(cameraParams)
         }
       }
@@ -562,6 +563,7 @@ function createScene(options) {
     for(var i=0; i<numObjs; ++i) {
       var obj = objects[i]
       obj.axes = axes
+      obj.pixelRatio = scene.pixelRatio
       if(obj.isOpaque && obj.isOpaque()) {
         obj.draw(cameraParams)
       }
