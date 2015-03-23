@@ -286,7 +286,7 @@ function createScene(options) {
       mouseRotating = false
 
       for(var i=0; i<numPick; ++i) {
-        var result = pickBuffers[i].query(x, gl.drawingBufferHeight - y - 1, scene.pickRadius)
+        var result = pickBuffers[i].query(x, pickShape[1] - y - 1, scene.pickRadius)
         if(result) {
           if(result.distance > selection.distance) {
             continue
