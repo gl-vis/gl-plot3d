@@ -48,11 +48,20 @@ function createScene(options) {
 
   var stopped = false
 
+  var pixelRatio = options.pixelRation || parseFloat(window.devicePixelRatio)
+
   var canvas = options.canvas
   if(!canvas) {
     canvas = document.createElement('canvas')
-    var container = (options.container || document.body)
-    container.appendChild(canvas)
+    if(options.container) {
+      canvas.width = container.clientWidth * pixelRatio
+      canvas.height = container.clientHeight * pixelRatio
+      options.container.appendChild(canvas)
+    } else {
+      canvas.width = window.innerWidth * pixelRatio
+      canvas.height = window.innerHeight * pixelRatio
+      document.body.appendChild(canvas)
+    }
   }
 
   var gl = options.gl
@@ -63,9 +72,6 @@ function createScene(options) {
   if(!gl) {
     throw new Error('webgl not supported')
   }
-
-  var viewShape = [ gl.drawingBufferWidth, gl.drawingBufferHeight ]
-  var pickShape = [ (gl.drawingBufferWidth/scene.pixelRatio)|0, (gl.drawingBufferHeight/scene.pixelRatio)|0 ]
 
   //Initial bounds
   var bounds = options.bounds || [[-10,-10,-10], [10,10,10]]
@@ -150,8 +156,9 @@ function createScene(options) {
     cameraParams: cameraParams
   }
 
+  var viewShape = [ gl.drawingBufferWidth, gl.drawingBufferHeight ]
+  var pickShape = [ (gl.drawingBufferWidth/scene.pixelRatio)|0, (gl.drawingBufferHeight/scene.pixelRatio)|0 ]
 
-  var fitFunc = fit(canvas, options.container, pixelRatio)
   function resizeListener() {
     if(!scene.autoResize) {
       return
@@ -159,19 +166,19 @@ function createScene(options) {
     var style = canvas.style
     style.position = style.position || 'absolute'
     style.left     = '0px'
-    style.right    = '0px'
+    style.top      = '0px'
     var parent = canvas.parentNode
-    var width = 0
-    var height = 0
-    if(p && p !== document.body) {
+    var width  = 1
+    var height = 1
+    if(parent && parent !== document.body) {
       width  = parent.clientWidth
       height = parent.clientHeight
     } else {
       width  = window.innerWidth
       height = window.innerHeight
     }
-    canvas.width  = Math.ceil(width  * scene.devicePixelRatio)|0
-    canvas.height = Math.ceil(height * scene.devicePixelRatio)|0
+    canvas.width  = Math.ceil(width  * scene.pixelRatio)|0
+    canvas.height = Math.ceil(height * scene.pixelRatio)|0
     style.width   = width  + 'px'
     style.height  = height + 'px'
   }
@@ -180,7 +187,6 @@ function createScene(options) {
   }
 
   window.addEventListener('resize', resizeListener)
-
 
   function reallocPickIds() {
     var numObjs = objects.length
@@ -216,6 +222,10 @@ function createScene(options) {
       pickBufferCount.pop()
       pickBuffers.pop().dispose()
     }
+  }
+
+  scene.update = function(options) {
+    options = options || {}
   }
 
   scene.add = function(obj) {
@@ -353,7 +363,7 @@ function createScene(options) {
   }
 
   var nBounds = [
-    [Infinity, Infinity, Infinity],
+    [ Infinity, Infinity, Infinity],
     [-Infinity,-Infinity,-Infinity]]
 
   //Draw the whole scene
@@ -369,6 +379,10 @@ function createScene(options) {
     dirty     = dirty || cameraMoved
     pickDirty = pickDirty || cameraMoved
 
+      //Set pixel ratio
+    axes.pixelRatio   = scene.pixelRatio
+    spikes.pixelRatio = scene.pixelRatio
+
     //Check if any objects changed, recalculate bounds
     var numObjs = objects.length
     var lo = nBounds[0]
@@ -377,6 +391,11 @@ function createScene(options) {
     hi[0] = hi[1] = hi[2] = -Infinity
     for(var i=0; i<numObjs; ++i) {
       var obj = objects[i]
+
+      //Set the axes properties for each object
+      obj.pixelRatio = scene.pixelRatio
+      obj.axes = scene.axes
+
       dirty = dirty || !!obj.dirty
       pickDirty = pickDirty || !!obj.dirty
       var obb = obj.bounds
@@ -436,8 +455,8 @@ function createScene(options) {
     var height = gl.drawingBufferHeight
     viewShape[0] = width
     viewShape[1] = height
-    pickShape[0] = (width/pixelRatio)|0
-    pickShape[1] = (height/pixelRatio)|0
+    pickShape[0] = Math.max(width/scene.pixelRatio, 1)|0
+    pickShape[1] = Math.max(height/scene.pixelRatio, 1)|0
 
     //Compute camera parameters
     perspective(projection,
