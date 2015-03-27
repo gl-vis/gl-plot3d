@@ -67,7 +67,7 @@ function createScene(options) {
 
   var gl = options.gl
   if(!gl) {
-    var glOptions = options.glOptions || { premultipliedAlpha: true }
+    var glOptions = options.glOptions || { premultipliedAlpha: true, antialias: true }
     gl = canvas.getContext('webgl', glOptions)
   }
   if(!gl) {
