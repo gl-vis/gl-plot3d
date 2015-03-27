@@ -35,7 +35,8 @@
     "scatter": "beefy ./example/scatter.js --open",
     "line": "beefy ./example/line.js --open",
     "surface": "beefy ./example/surface.js --open",
-    "mesh": "beefy ./example/mesh.js --open"
+    "mesh": "beefy ./example/mesh.js --open",
+    "wireframe": "beefy ./example/wireframe.js --open"
   },
   "repository": {
     "type": "git",

@@ -54,9 +54,10 @@ function createScene(options) {
   if(!canvas) {
     canvas = document.createElement('canvas')
     if(options.container) {
+      var container = options.container
       canvas.width = container.clientWidth * pixelRatio
       canvas.height = container.clientHeight * pixelRatio
-      options.container.appendChild(canvas)
+      container.appendChild(canvas)
     } else {
       canvas.width = window.innerWidth * pixelRatio
       canvas.height = window.innerHeight * pixelRatio
@@ -126,6 +127,9 @@ function createScene(options) {
   }
 
   var pickDirty = true
+
+  var viewShape = [ gl.drawingBufferWidth, gl.drawingBufferHeight ]
+
   //Create scene object
   var scene = {
     gl:           gl,
@@ -138,6 +142,7 @@ function createScene(options) {
     spikes:       spikes,
     bounds:       bounds,
     objects:      objects,
+    shape:        viewShape,
     pickRadius:   options.pickRadius || 10,
     zNear:        options.zNear || 0.01,
     zFar:         options.zFar  || 1000,
@@ -152,11 +157,9 @@ function createScene(options) {
     onselect:     options.onselect || null,
     onrender:     options.onrender || null,
     onclick:      options.onclick  || null,
-    shape:        viewShape,
     cameraParams: cameraParams
   }
 
-  var viewShape = [ gl.drawingBufferWidth, gl.drawingBufferHeight ]
   var pickShape = [ (gl.drawingBufferWidth/scene.pixelRatio)|0, (gl.drawingBufferHeight/scene.pixelRatio)|0 ]
 
   function resizeListener() {
@@ -226,6 +229,8 @@ function createScene(options) {
 
   scene.update = function(options) {
     options = options || {}
+    dirty = true
+    pickDirty = true
   }
 
   scene.add = function(obj) {
@@ -415,10 +420,14 @@ function createScene(options) {
     if(scene.autoBounds) {
       var boundsChanged = false
       for(var j=0; j<3; ++j) {
-        if(lo[j] === Infinity || hi[j] === -Infinity) {
+        if(hi[j] < lo[j]) {
           lo[j] = -1
           hi[j] = 1
         } else {
+          if(lo[j] === hi[j]) {
+            lo[j] -= 1
+            hi[j] = 1
+          }
           var padding = 0.05 * (hi[j] - lo[j])
           lo[j] = lo[j] - padding
           hi[j] = hi[j] + padding
