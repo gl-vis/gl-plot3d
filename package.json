@@ -17,7 +17,7 @@
     "glslify": "^1.0.0",
     "mouse-change": "^1.1.1",
     "ndarray": "^1.0.16",
-    "orbiter": "^1.0.2"
+    "3d-view-controls": "^2.0.0"
   },
   "devDependencies": {
     "beefy": "^2.1.3",

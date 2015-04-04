@@ -2,7 +2,7 @@
 
 module.exports = createScene
 
-var createCamera = require('orbiter')
+var createCamera = require('3d-view-controls')
 var createAxes   = require('gl-axes3d')
 var axesRanges   = require('gl-axes3d/properties')
 var createSpikes = require('gl-spikes3d')
@@ -94,7 +94,8 @@ function createScene(options) {
     center: [0,0,0],
     up:     [0,1,0],
     zoomMin: 0.1,
-    zoomMax: 100
+    zoomMax: 100,
+    mode:    'turntable'
   }
   var camera = createCamera(canvas, cameraOptions)
 
