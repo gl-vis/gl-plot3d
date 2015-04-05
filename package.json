@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "a-big-triangle": "^1.0.0",
-    "gl-axes3d": "^1.0.0",
+    "gl-axes3d": "^1.1.0",
     "gl-fbo": "^2.0.3",
     "gl-mat4": "^1.1.2",
     "gl-select-static": "^2.0.0",
