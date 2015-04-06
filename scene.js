@@ -90,7 +90,7 @@ function createScene(options) {
 
   //Create a camera
   var cameraOptions = options.camera || {
-    eye:    [0,0,2],
+    eye:    [2,0,0],
     center: [0,0,0],
     up:     [0,1,0],
     zoomMin: 0.1,
@@ -427,7 +427,7 @@ function createScene(options) {
         } else {
           if(lo[j] === hi[j]) {
             lo[j] -= 1
-            hi[j] = 1
+            hi[j] += 1
           }
           var padding = 0.05 * (hi[j] - lo[j])
           lo[j] = lo[j] - padding
