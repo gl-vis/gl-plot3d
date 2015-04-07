@@ -55,12 +55,8 @@ function createScene(options) {
     canvas = document.createElement('canvas')
     if(options.container) {
       var container = options.container
-      canvas.width = container.clientWidth * pixelRatio
-      canvas.height = container.clientHeight * pixelRatio
       container.appendChild(canvas)
     } else {
-      canvas.width = window.innerWidth * pixelRatio
-      canvas.height = window.innerHeight * pixelRatio
       document.body.appendChild(canvas)
     }
   }
@@ -97,7 +93,6 @@ function createScene(options) {
     zoomMax: 100,
     mode:    'turntable'
   }
-  var camera = createCamera(canvas, cameraOptions)
 
   //Create axes
   var axesOptions = options.axes || {}
@@ -122,7 +117,7 @@ function createScene(options) {
   var model          = new Array(16)
   
   var cameraParams = {
-    view:         camera.matrix,
+    view:         null,
     projection:   projection,
     model:        model
   }
@@ -137,7 +132,7 @@ function createScene(options) {
     pixelRatio:   options.pixelRatio || parseFloat(window.devicePixelRatio),
     canvas:       canvas,
     selection:    selection,
-    camera:       camera,
+    camera:       createCamera(canvas, cameraOptions),
     axes:         axes,
     axesPixels:   null,
     spikes:       spikes,
@@ -181,21 +176,20 @@ function createScene(options) {
     var nextWidth  = Math.ceil(width  * scene.pixelRatio)|0
     var nextHeight = Math.ceil(height * scene.pixelRatio)|0
     if(nextWidth !== canvas.width || nextHeight !== canvas.height) {
+      canvas.width   = nextWidth
+      canvas.height  = nextHeight
       var style = canvas.style
       style.position = style.position || 'absolute'
       style.left     = '0px'
       style.top      = '0px'
       style.width    = width  + 'px'
       style.height   = height + 'px'
-      canvas.width   = nextWidth
-      canvas.height  = nextHeight
       dirty = true
     }
   }
   if(scene.autoResize) {
     resizeListener()
   }
-
   window.addEventListener('resize', resizeListener)
 
   function reallocPickIds() {
@@ -389,7 +383,8 @@ function createScene(options) {
     resizeListener()
 
     //Tick camera
-    var cameraMoved = camera.tick()
+    var cameraMoved = scene.camera.tick()
+    cameraParams.view = scene.camera.matrix
     dirty     = dirty || cameraMoved
     pickDirty = pickDirty || cameraMoved
 
