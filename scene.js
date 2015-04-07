@@ -144,6 +144,7 @@ function createScene(options) {
     bounds:       bounds,
     objects:      objects,
     shape:        viewShape,
+    aspect:       options.aspectRatio || [1,1,1],
     pickRadius:   options.pickRadius || 10,
     zNear:        options.zNear || 0.01,
     zFar:         options.zFar  || 1000,
@@ -167,10 +168,6 @@ function createScene(options) {
     if(!scene.autoResize) {
       return
     }
-    var style = canvas.style
-    style.position = style.position || 'absolute'
-    style.left     = '0px'
-    style.top      = '0px'
     var parent = canvas.parentNode
     var width  = 1
     var height = 1
@@ -181,10 +178,19 @@ function createScene(options) {
       width  = window.innerWidth
       height = window.innerHeight
     }
-    canvas.width  = Math.ceil(width  * scene.pixelRatio)|0
-    canvas.height = Math.ceil(height * scene.pixelRatio)|0
-    style.width   = width  + 'px'
-    style.height  = height + 'px'
+    var nextWidth  = Math.ceil(width  * scene.pixelRatio)|0
+    var nextHeight = Math.ceil(height * scene.pixelRatio)|0
+    if(nextWidth !== canvas.width || nextHeight !== canvas.height) {
+      var style = canvas.style
+      style.position = style.position || 'absolute'
+      style.left     = '0px'
+      style.top      = '0px'
+      style.width    = width  + 'px'
+      style.height   = height + 'px'
+      canvas.width   = nextWidth
+      canvas.height  = nextHeight
+      dirty = true
+    }
   }
   if(scene.autoResize) {
     resizeListener()
@@ -378,8 +384,9 @@ function createScene(options) {
     if(stopped) {
       return
     }
-
+    
     requestAnimationFrame(render)
+    resizeListener()
 
     //Tick camera
     var cameraMoved = camera.tick()
@@ -481,13 +488,9 @@ function createScene(options) {
       model[i] = 0
     }
     model[15] = 1
-    var diameter = 0
-    for(var i=0; i<3; ++i) {
-      diameter = Math.max(bounds[1][i] - bounds[0][i])
-    }
     for(var i=0; i<3; ++i) {
       if(scene.autoScale) {
-        model[5*i] = 0.5 / diameter
+        model[5*i] = scene.aspect[i] / (bounds[1][i] - bounds[0][i])
       } else {
         model[5*i] = 1
       }
