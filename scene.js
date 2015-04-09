@@ -147,7 +147,7 @@ function createScene(options) {
     clearColor:   options.clearColor || [0,0,0,0],
     autoResize:   defaultBool(options.autoResize),
     autoBounds:   defaultBool(options.autoBounds),
-    autoScale:    defaultBool(options.autoScale),
+    autoScale:    !!options.autoScale,
     autoCenter:   defaultBool(options.autoCenter),
     clipToBounds: defaultBool(options.clipToBounds),
     snapToData:   !!options.snapToData,
@@ -373,6 +373,8 @@ function createScene(options) {
     [ Infinity, Infinity, Infinity],
     [-Infinity,-Infinity,-Infinity]]
 
+  var prevBounds = [nBounds[0].slice(), nBounds[1].slice()]
+
   //Draw the whole scene
   function render() {
     if(stopped) {
@@ -435,27 +437,35 @@ function createScene(options) {
           lo[j] = lo[j] - padding
           hi[j] = hi[j] + padding
         }
-        boundsChanged = boundsChanged ||
-            (lo[j] !== bounds[0][j])  ||
-            (hi[j] !== bounds[1][j])
+        bounds[0][j] = lo[j]
+        bounds[1][j] = hi[j]
       }
-      if(boundsChanged) {
-        var tickSpacing = [0,0,0]
-        for(var i=0; i<3; ++i) {
-          bounds[0][i] = lo[i]
-          bounds[1][i] = hi[i]
-          tickSpacing[i] = roundUpPow10((hi[i]-lo[i]) / 10.0)
-        }
-        if(axes.autoTicks) {
-          axes.update({
-            bounds: bounds,
-            tickSpacing: tickSpacing
-          })
-        } else {
-          axes.update({
-            bounds: bounds
-          })
-        }
+    }
+
+    for(var j=0; j<3; ++j) {  
+        boundsChanged = boundsChanged ||
+            (prevBounds[0][j] !== bounds[0][j])  ||
+            (prevBounds[1][j] !== bounds[1][j])
+        prevBounds[0][j] = bounds[0][j]
+        prevBounds[1][j] = bounds[1][j]
+    }
+
+    if(boundsChanged) {
+      var tickSpacing = [0,0,0]
+      for(var i=0; i<3; ++i) {
+        bounds[0][i] = lo[i]
+        bounds[1][i] = hi[i]
+        tickSpacing[i] = roundUpPow10((hi[i]-lo[i]) / 10.0)
+      }
+      if(axes.autoTicks) {
+        axes.update({
+          bounds: bounds,
+          tickSpacing: tickSpacing
+        })
+      } else {
+        axes.update({
+          bounds: bounds
+        })
       }
     }
 
@@ -483,11 +493,17 @@ function createScene(options) {
       model[i] = 0
     }
     model[15] = 1
+
+    var maxS = 0
+    for(var i=0; i<3; ++i) {
+      maxS = Math.max(maxS, bounds[1][i] - bounds[0][i])
+    }
+
     for(var i=0; i<3; ++i) {
       if(scene.autoScale) {
         model[5*i] = scene.aspect[i] / (bounds[1][i] - bounds[0][i])
       } else {
-        model[5*i] = 1
+        model[5*i] = 1  / maxS
       }
       if(scene.autoCenter) {
         model[12+i] = -model[5*i] * 0.5 * (bounds[0][i] + bounds[1][i])

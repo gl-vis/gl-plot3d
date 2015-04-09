@@ -26,6 +26,7 @@ for(var i=0; i<=2*size; ++i) {
 var contourLevels = [[0], [0], [0]]
 
 var surface = createSurface({
+  gl:  scene.gl,
   levels: [ contourLevels, contourLevels, contourLevels ],
   lineWidth: 3,
   contourTint: 1,
