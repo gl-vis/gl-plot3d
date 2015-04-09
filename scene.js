@@ -423,7 +423,6 @@ function createScene(options) {
     //Recalculate bounds
     var bounds = scene.bounds
     if(scene.autoBounds) {
-      var boundsChanged = false
       for(var j=0; j<3; ++j) {
         if(hi[j] < lo[j]) {
           lo[j] = -1
@@ -442,6 +441,7 @@ function createScene(options) {
       }
     }
 
+    var boundsChanged = false
     for(var j=0; j<3; ++j) {  
         boundsChanged = boundsChanged ||
             (prevBounds[0][j] !== bounds[0][j])  ||
@@ -453,9 +453,7 @@ function createScene(options) {
     if(boundsChanged) {
       var tickSpacing = [0,0,0]
       for(var i=0; i<3; ++i) {
-        bounds[0][i] = lo[i]
-        bounds[1][i] = hi[i]
-        tickSpacing[i] = roundUpPow10((hi[i]-lo[i]) / 10.0)
+        tickSpacing[i] = roundUpPow10((bounds[1][i]-bounds[0][i]) / 10.0)
       }
       if(axes.autoTicks) {
         axes.update({
