@@ -102,7 +102,7 @@ function createScene(options) {
   //Create spikes
   var spikeOptions = options.spikes || {}
   var spikes = createSpikes(gl, spikeOptions)
-  
+
   //Object list is empty initially
   var objects         = []
   var pickBufferIds   = []
@@ -112,10 +112,10 @@ function createScene(options) {
   //Dirty flag, skip redraw if scene static
   var dirty       = true
   var pickDirty   = true
-  
+
   var projection     = new Array(16)
   var model          = new Array(16)
-  
+
   var cameraParams = {
     view:         null,
     projection:   projection,
@@ -257,12 +257,31 @@ function createScene(options) {
 
   scene.dispose = function() {
     stopped = true
+
+    //FIXME: clear mouse listener
     window.removeEventListener('resize', resizeListener)
+
+    //Destroy objects
     axes.dispose()
     spikes.dispose()
     for(var i=0; i<objects.length; ++i) {
       objects[i].dispose()
     }
+
+    //Clean up buffers
+    accumBuffer.dispose()
+    for(var i=0; i<pickBuffers.length; ++i) {
+      pickBuffers[i].dispose()
+    }
+
+    //Clean up shaders
+    accumShader.dispose()
+
+    //Release all references
+    gl = null
+    axes = null
+    spikes = null
+    objects = []
   }
 
   //Update mouse position
@@ -271,6 +290,10 @@ function createScene(options) {
   var prevButtons = 0
 
   mouseChange(canvas, function(buttons, x, y) {
+    if(stopped) {
+      return
+    }
+
     var numPick = pickBuffers.length
     var numObjs = objects.length
     var prevObj = selection.object
@@ -343,7 +366,6 @@ function createScene(options) {
 
   //Render the scene for mouse picking
   function renderPick() {
-
     gl.colorMask(true, true, true, true)
     gl.depthMask(true)
     gl.disable(gl.BLEND)
@@ -375,13 +397,7 @@ function createScene(options) {
 
   var prevBounds = [nBounds[0].slice(), nBounds[1].slice()]
 
-  //Draw the whole scene
-  function render() {
-    if(stopped) {
-      return
-    }
-    
-    requestAnimationFrame(render)
+  function redraw() {
     resizeListener()
 
     //Tick camera
@@ -442,7 +458,7 @@ function createScene(options) {
     }
 
     var boundsChanged = false
-    for(var j=0; j<3; ++j) {  
+    for(var j=0; j<3; ++j) {
         boundsChanged = boundsChanged ||
             (prevBounds[0][j] !== bounds[0][j])  ||
             (prevBounds[1][j] !== bounds[1][j])
@@ -563,7 +579,7 @@ function createScene(options) {
     gl.clearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3])
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     gl.depthMask(true)
-    gl.colorMask(true, true, true, true)  
+    gl.colorMask(true, true, true, true)
     gl.enable(gl.DEPTH_TEST)
     gl.depthFunc(gl.LEQUAL)
     gl.disable(gl.BLEND)
@@ -581,7 +597,7 @@ function createScene(options) {
     }
 
     gl.disable(gl.CULL_FACE)  //most visualization surfaces are 2 sided
-    
+
     for(var i=0; i<numObjs; ++i) {
       var obj = objects[i]
       obj.axes = axes
@@ -602,7 +618,7 @@ function createScene(options) {
       gl.colorMask(false, false, false, false)
       gl.depthMask(true)
       gl.depthFunc(gl.LESS)
-      
+
       //Render forward facing objects
       if(axes.enable && axes.isTransparent()) {
         axes.drawTransparent(cameraParams)
@@ -655,7 +671,24 @@ function createScene(options) {
       objects[i].dirty = false
     }
   }
+
+
+  //Draw the whole scene
+  function render() {
+    if(stopped) {
+      return
+    }
+
+    requestAnimationFrame(render)
+    redraw()
+  }
   render()
+
+  //Force redraw of whole scene
+  scene.redraw = function() {
+    dirty = true
+    redraw()
+  }
 
   return scene
 }
