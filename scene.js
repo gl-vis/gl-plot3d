@@ -160,6 +160,9 @@ function createScene(options) {
   var pickShape = [ (gl.drawingBufferWidth/scene.pixelRatio)|0, (gl.drawingBufferHeight/scene.pixelRatio)|0 ]
 
   function resizeListener() {
+    if(stopped) {
+      return
+    }
     if(!scene.autoResize) {
       return
     }
