@@ -212,6 +212,9 @@ Adds a new object to the scene
 #### `scene.removeObject(obj)`
 Removes an object from the scene
 
+#### `scene.redraw()`
+Forces an immediate redraw of the scene and pick buffer.  Useful if you are s
+
 #### `scene.dispose()`
 Destroys the scene and releases all associated resources.  Also destroys all attached objects.
 
