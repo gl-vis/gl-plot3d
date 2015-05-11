@@ -232,12 +232,18 @@ function createScene(options) {
   }
 
   scene.update = function(options) {
+    if(stopped) {
+      return
+    }
     options = options || {}
     dirty = true
     pickDirty = true
   }
 
   scene.add = function(obj) {
+    if(stopped) {
+      return
+    }
     obj.axes = axes
     objects.push(obj)
     pickBufferIds.push(-1)
@@ -247,6 +253,9 @@ function createScene(options) {
   }
 
   scene.remove = function(obj) {
+    if(stopped) {
+      return
+    }
     var idx = objects.indexOf(obj)
     if(idx < 0) {
       return
@@ -259,6 +268,10 @@ function createScene(options) {
   }
 
   scene.dispose = function() {
+    if(stopped) {
+      return
+    }
+
     stopped = true
 
     //FIXME: clear mouse listener
@@ -689,6 +702,9 @@ function createScene(options) {
 
   //Force redraw of whole scene
   scene.redraw = function() {
+    if(stopped) {
+      return
+    }
     dirty = true
     redraw()
   }
