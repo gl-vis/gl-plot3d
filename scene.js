@@ -24,6 +24,19 @@ function MouseSelect() {
   this.data           = null
 }
 
+function getContext(canvas, options) {
+  var gl = null
+  try {
+    gl = canvas.getContext('webgl', options)
+    if(!gl) {
+      gl = canvas.getContext('experimental-webgl', options)
+    }
+  } catch(e) {
+    return null
+  }
+  return gl
+}
+
 function roundUpPow10(x) {
   var y = Math.round(Math.log(Math.abs(x)) / Math.log(10))
   if(y < 0) {
@@ -63,8 +76,11 @@ function createScene(options) {
 
   var gl = options.gl
   if(!gl) {
-    var glOptions = options.glOptions || { premultipliedAlpha: true, antialias: true }
-    gl = canvas.getContext('webgl', glOptions)
+    gl = getContext(canvas,
+      options.glOptions || {
+        premultipliedAlpha: true,
+        antialias: true
+      })
   }
   if(!gl) {
     throw new Error('webgl not supported')
