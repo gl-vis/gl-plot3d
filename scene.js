@@ -170,7 +170,8 @@ function createScene(options) {
     onselect:     options.onselect || null,
     onrender:     options.onrender || null,
     onclick:      options.onclick  || null,
-    cameraParams: cameraParams
+    cameraParams: cameraParams,
+    mouseListener: null
   }
 
   var pickShape = [ (gl.drawingBufferWidth/scene.pixelRatio)|0, (gl.drawingBufferHeight/scene.pixelRatio)|0 ]
@@ -290,8 +291,8 @@ function createScene(options) {
 
     stopped = true
 
-    //FIXME: clear mouse listener
     window.removeEventListener('resize', resizeListener)
+    scene.mouseListener.enabled = false
 
     //Destroy objects
     axes.dispose()
@@ -321,7 +322,7 @@ function createScene(options) {
 
   var prevButtons = 0
 
-  mouseChange(canvas, function(buttons, x, y) {
+  scene.mouseListener = mouseChange(canvas, function(buttons, x, y) {
     if(stopped) {
       return
     }
@@ -710,7 +711,6 @@ function createScene(options) {
     if(stopped) {
       return
     }
-
     requestAnimationFrame(render)
     redraw()
   }
