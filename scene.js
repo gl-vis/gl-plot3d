@@ -736,7 +736,7 @@ function createScene(options) {
 
   //Draw the whole scene
   function render() {
-    if(stopped) {
+    if(stopped || scene.contextLost) {
       return
     }
     requestAnimationFrame(render)
