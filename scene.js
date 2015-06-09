@@ -145,6 +145,7 @@ function createScene(options) {
   //Create scene object
   var scene = {
     gl:           gl,
+    contextLost:  false,
     pixelRatio:   options.pixelRatio || parseFloat(window.devicePixelRatio),
     canvas:       canvas,
     selection:    selection,
@@ -171,6 +172,7 @@ function createScene(options) {
     onrender:     options.onrender || null,
     onclick:      options.onclick  || null,
     cameraParams: cameraParams,
+    oncontextloss: null,
     mouseListener: null
   }
 
@@ -294,6 +296,10 @@ function createScene(options) {
     window.removeEventListener('resize', resizeListener)
     scene.mouseListener.enabled = false
 
+    if(scene.contextLost) {
+      return
+    }
+
     //Destroy objects
     axes.dispose()
     spikes.dispose()
@@ -397,8 +403,26 @@ function createScene(options) {
     prevButtons = buttons
   })
 
+  function checkContextLoss() {
+    if(scene.contextLost) {
+      return true
+    }
+    if(gl.isContextLost()) {
+      scene.contextLost = true
+      scene.mouseListener.enabled = false
+      scene.selection.object = null
+      if(scene.oncontextloss) {
+        scene.oncontextloss()
+      }
+    }
+  }
+
   //Render the scene for mouse picking
   function renderPick() {
+    if(checkContextLoss()) {
+      return
+    }
+
     gl.colorMask(true, true, true, true)
     gl.depthMask(true)
     gl.disable(gl.BLEND)
@@ -431,6 +455,10 @@ function createScene(options) {
   var prevBounds = [nBounds[0].slice(), nBounds[1].slice()]
 
   function redraw() {
+    if(checkContextLoss()) {
+      return
+    }
+
     resizeListener()
 
     //Tick camera
