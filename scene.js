@@ -294,6 +294,7 @@ function createScene(options) {
     stopped = true
 
     window.removeEventListener('resize', resizeListener)
+    canvas.removeEventListener('webglcontextlost', checkContextLoss)
     scene.mouseListener.enabled = false
 
     if(scene.contextLost) {
@@ -416,6 +417,8 @@ function createScene(options) {
       }
     }
   }
+
+  canvas.addEventListener('webglcontextlost', checkContextLoss)
 
   //Render the scene for mouse picking
   function renderPick() {
