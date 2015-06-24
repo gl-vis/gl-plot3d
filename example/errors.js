@@ -2,13 +2,13 @@
 
 var createScene = require('../scene')
 var createScatter = require('gl-scatter3d')
-var createErrorBars = require('gl-error-bars')
+var createErrorBars = require('gl-error3d')
 
 var points = [ [0,0,0], [1,1,1], [-1, 2, -3] ]
-var errors = [ 
-  [[-0.5,-0.5,-0.5],[0.5,0.5,0.5]], 
-  [[-0.1,-1,-2],[0,0,0]], 
-  [[-0.1,-0.1,-0.1],[0.1,0.1,0.1]] 
+var errors = [
+  [[-0.5,-0.5,-0.5],[0.5,0.5,0.5]],
+  [[-0.1,-1,-2],[0,0,0]],
+  [[-0.1,-0.1,-0.1],[0.1,0.1,0.1]]
 ]
 
 var scene = createScene()
