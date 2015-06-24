@@ -145,6 +145,7 @@ function createScene(options) {
   //Create scene object
   var scene = {
     gl:           gl,
+    contextLost:  false,
     pixelRatio:   options.pixelRatio || parseFloat(window.devicePixelRatio),
     canvas:       canvas,
     selection:    selection,
@@ -170,7 +171,9 @@ function createScene(options) {
     onselect:     options.onselect || null,
     onrender:     options.onrender || null,
     onclick:      options.onclick  || null,
-    cameraParams: cameraParams
+    cameraParams: cameraParams,
+    oncontextloss: null,
+    mouseListener: null
   }
 
   var pickShape = [ (gl.drawingBufferWidth/scene.pixelRatio)|0, (gl.drawingBufferHeight/scene.pixelRatio)|0 ]
@@ -290,8 +293,13 @@ function createScene(options) {
 
     stopped = true
 
-    //FIXME: clear mouse listener
     window.removeEventListener('resize', resizeListener)
+    canvas.removeEventListener('webglcontextlost', checkContextLoss)
+    scene.mouseListener.enabled = false
+
+    if(scene.contextLost) {
+      return
+    }
 
     //Destroy objects
     axes.dispose()
@@ -321,7 +329,7 @@ function createScene(options) {
 
   var prevButtons = 0
 
-  mouseChange(canvas, function(buttons, x, y) {
+  scene.mouseListener = mouseChange(canvas, function(buttons, x, y) {
     if(stopped) {
       return
     }
@@ -396,8 +404,28 @@ function createScene(options) {
     prevButtons = buttons
   })
 
+  function checkContextLoss() {
+    if(scene.contextLost) {
+      return true
+    }
+    if(gl.isContextLost()) {
+      scene.contextLost = true
+      scene.mouseListener.enabled = false
+      scene.selection.object = null
+      if(scene.oncontextloss) {
+        scene.oncontextloss()
+      }
+    }
+  }
+
+  canvas.addEventListener('webglcontextlost', checkContextLoss)
+
   //Render the scene for mouse picking
   function renderPick() {
+    if(checkContextLoss()) {
+      return
+    }
+
     gl.colorMask(true, true, true, true)
     gl.depthMask(true)
     gl.disable(gl.BLEND)
@@ -430,6 +458,10 @@ function createScene(options) {
   var prevBounds = [nBounds[0].slice(), nBounds[1].slice()]
 
   function redraw() {
+    if(checkContextLoss()) {
+      return
+    }
+
     resizeListener()
 
     //Tick camera
@@ -707,10 +739,9 @@ function createScene(options) {
 
   //Draw the whole scene
   function render() {
-    if(stopped) {
+    if(stopped || scene.contextLost) {
       return
     }
-
     requestAnimationFrame(render)
     redraw()
   }

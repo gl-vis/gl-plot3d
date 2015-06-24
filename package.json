@@ -1,6 +1,6 @@
 {
   "name": "gl-plot3d",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Quick start rendering engine for plotting/data visualization",
   "main": "scene.js",
   "directories": {
