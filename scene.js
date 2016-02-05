@@ -368,6 +368,7 @@ function createScene(options) {
             }
             var objPick = obj.pick(result)
             if(objPick) {
+              selection.buttons        = buttons
               selection.screen         = result.coord
               selection.distance       = result.distance
               selection.object         = obj
@@ -381,6 +382,7 @@ function createScene(options) {
         }
       }
     }
+
     if(prevObj && prevObj !== selection.object) {
       if(prevObj.highlight) {
         prevObj.highlight(null)
