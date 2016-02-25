@@ -337,6 +337,7 @@ function createScene(options) {
     var numPick = pickBuffers.length
     var numObjs = objects.length
     var prevObj = selection.object
+
     selection.distance = Infinity
     selection.mouse[0] = x
     selection.mouse[1] = y
@@ -346,7 +347,7 @@ function createScene(options) {
 
     var change = false
 
-    if(buttons) {
+    if(buttons && prevButtons) {
       mouseRotating = true
     } else {
       if(mouseRotating) {
@@ -367,6 +368,7 @@ function createScene(options) {
             }
             var objPick = obj.pick(result)
             if(objPick) {
+              selection.buttons        = buttons
               selection.screen         = result.coord
               selection.distance       = result.distance
               selection.object         = obj
@@ -380,6 +382,7 @@ function createScene(options) {
         }
       }
     }
+
     if(prevObj && prevObj !== selection.object) {
       if(prevObj.highlight) {
         prevObj.highlight(null)
