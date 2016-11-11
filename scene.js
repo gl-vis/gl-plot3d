@@ -12,6 +12,7 @@ var drawTriangle = require('a-big-triangle')
 var mouseChange  = require('mouse-change')
 var perspective  = require('gl-mat4/perspective')
 var createShader = require('./lib/shader')
+var isMobile = require('is-mobile')()
 
 function MouseSelect() {
   this.mouse          = [-1,-1]
@@ -95,7 +96,7 @@ function createScene(options) {
   //Accumulation buffer
   var accumBuffer = createFBO(gl,
     [gl.drawingBufferWidth, gl.drawingBufferHeight], {
-      preferFloat: true
+      preferFloat: !isMobile
     })
 
   var accumShader = createShader(gl)

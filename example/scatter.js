@@ -5,7 +5,6 @@ var createScatter = require('gl-scatter3d')
 var bunny = require('bunny')
 
 var scene = createScene()
-
 var scatter = createScatter({
   gl:           scene.gl,
   position:     bunny.positions,
