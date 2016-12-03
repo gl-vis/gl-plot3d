@@ -23,6 +23,7 @@
   "devDependencies": {
     "bunny": "^1.0.1",
     "dirichlet": "0.0.0",
+    "enable-mobile": "^1.0.7",
     "gl-line3d": "^1.0.0",
     "gl-mesh3d": "^1.0.0",
     "gl-scatter3d": "^1.0.10",
