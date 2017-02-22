@@ -1,5 +1,6 @@
 'use strict'
 
+require('enable-mobile')
 var createScene = require('../scene')
 var createMesh = require('gl-mesh3d')
 var bunny = require('bunny')
