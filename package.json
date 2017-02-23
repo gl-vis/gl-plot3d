@@ -7,7 +7,7 @@
     "example": "example"
   },
   "dependencies": {
-    "3d-view-controls": "^2.0.0",
+    "3d-view-controls": "^2.2.0",
     "a-big-triangle": "^1.0.0",
     "gl-axes3d": "^1.2.5",
     "gl-fbo": "^2.0.3",
