@@ -13,9 +13,9 @@
     "gl-fbo": "^2.0.3",
     "gl-mat4": "^1.1.2",
     "gl-select-static": "^2.0.2",
-    "gl-shader": "^4.0.4",
+    "gl-shader": "^4.2.1",
     "gl-spikes3d": "^1.0.3",
-    "glslify": "^2.1.2",
+    "glslify": "^6.1.0",
     "is-mobile": "^0.2.2",
     "mouse-change": "^1.1.1",
     "ndarray": "^1.0.16"
@@ -27,7 +27,7 @@
     "gl-line3d": "^1.0.0",
     "gl-mesh3d": "^1.0.0",
     "gl-scatter3d": "^1.0.10",
-    "gl-surface3d": "^1.0.0",
+    "gl-surface3d": "^1.3.1",
     "ndarray-fill": "^1.0.1",
     "simplicial-complex": "^1.0.0"
   },
