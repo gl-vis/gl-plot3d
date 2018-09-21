@@ -12,7 +12,7 @@ var drawTriangle = require('a-big-triangle')
 var mouseChange  = require('mouse-change')
 var perspective  = require('gl-mat4/perspective')
 var createShader = require('./lib/shader')
-var isMobile = require('is-mobile')()
+var isMobile = require('is-mobile')({ tablet: true })
 
 function MouseSelect() {
   this.mouse          = [-1,-1]
