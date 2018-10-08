@@ -745,8 +745,9 @@ function createScene(options) {
     if(stopped || scene.contextLost) {
       return
     }
-    requestAnimationFrame(render)
+    // this order is important: ios safari sometimes has sync raf
     redraw()
+    requestAnimationFrame(render)
   }
   render()
 
