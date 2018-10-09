@@ -9,7 +9,7 @@
   "dependencies": {
     "3d-view-controls": "^2.2.0",
     "a-big-triangle": "^1.0.0",
-    "gl-axes3d": "git://github.com/archmoj/gl-axes3d.git#7cbaf36c3566044b311fd95e8aaa1022769218fc",
+    "gl-axes3d": "git://github.com/archmoj/gl-axes3d.git#19ed93f99a4cfff537f03e2aceb46fbfb13569df",
     "gl-fbo": "^2.0.3",
     "gl-mat4": "^1.1.2",
     "gl-select-static": "^2.0.2",
