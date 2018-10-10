@@ -81,7 +81,7 @@ function createScene(options) {
       options.glOptions || {
         premultipliedAlpha: true,
         antialias: true,
-        preserveDrawingBuffer: true
+        preserveDrawingBuffer: isMobile
       })
   }
   if(!gl) {
