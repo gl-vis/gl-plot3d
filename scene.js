@@ -12,7 +12,7 @@ var drawTriangle = require('a-big-triangle')
 var mouseChange  = require('mouse-change')
 var perspective  = require('gl-mat4/perspective')
 var createShader = require('./lib/shader')
-var isMobile = require('is-mobile')()
+var isMobile = require('is-mobile')({ tablet: true })
 
 function MouseSelect() {
   this.mouse          = [-1,-1]
@@ -80,7 +80,8 @@ function createScene(options) {
     gl = getContext(canvas,
       options.glOptions || {
         premultipliedAlpha: true,
-        antialias: true
+        antialias: true,
+        preserveDrawingBuffer: isMobile
       })
   }
   if(!gl) {
@@ -745,8 +746,9 @@ function createScene(options) {
     if(stopped || scene.contextLost) {
       return
     }
-    requestAnimationFrame(render)
+    // this order is important: ios safari sometimes has sync raf
     redraw()
+    requestAnimationFrame(render)
   }
   render()
 
