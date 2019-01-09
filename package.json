@@ -12,10 +12,10 @@
     "gl-axes3d": "git://github.com/gl-vis/gl-axes3d.git#471ae5f346b4c5e438f594b48bcac48bdab63fe6",
     "gl-fbo": "^2.0.3",
     "gl-mat4": "^1.1.2",
-    "gl-select-static": "^2.0.3",
+    "gl-select-static": "git://github.com/gl-vis/gl-select-static.git#821181152a061a29b248d4c8352142dbc7345b80",
     "gl-shader": "^4.2.1",
-    "gl-spikes3d": "^1.0.7",
-    "glslify": "^6.4.1",
+    "gl-spikes3d": "git://github.com/gl-vis/gl-spikes3d.git#3aaf3b028d4afdaafff928b5f63a8ece58e9050e",
+    "glslify": "^7.0.0",
     "is-mobile": "^2.0.0",
     "mouse-change": "^1.1.1",
     "ndarray": "^1.0.16"
@@ -23,7 +23,7 @@
   "devDependencies": {
     "bunny": "^1.0.1",
     "chttps": "^1.0.6",
-    "dirichlet": "0.0.0",
+    "dirichlet": "1.0.1",
     "enable-mobile": "^1.0.7",
     "gl-line3d": "^1.1.7",
     "gl-mesh3d": "^2.0.3",
