@@ -7,29 +7,29 @@
     "example": "example"
   },
   "dependencies": {
-    "3d-view-controls": "^2.2.0",
-    "a-big-triangle": "^1.0.0",
-    "gl-axes3d": "git://github.com/gl-vis/gl-axes3d.git#a65c444baafc50c9e46b8a91ecddb9bdd23fb676",
-    "gl-fbo": "^2.0.3",
-    "gl-mat4": "^1.1.2",
-    "gl-select-static": "git://github.com/gl-vis/gl-select-static.git#821181152a061a29b248d4c8352142dbc7345b80",
+    "3d-view-controls": "^2.2.2",
+    "a-big-triangle": "^1.0.3",
+    "gl-axes3d": "^1.4.3",
+    "gl-fbo": "^2.0.5",
+    "gl-mat4": "^1.2.0",
+    "gl-select-static": "^2.0.4",
     "gl-shader": "^4.2.1",
-    "gl-spikes3d": "git://github.com/gl-vis/gl-spikes3d.git#3aaf3b028d4afdaafff928b5f63a8ece58e9050e",
+    "gl-spikes3d": "^1.0.8",
     "glslify": "^7.0.0",
     "is-mobile": "^2.0.0",
-    "mouse-change": "^1.1.1",
-    "ndarray": "^1.0.16"
+    "mouse-change": "^1.4.0",
+    "ndarray": "^1.0.18"
   },
   "devDependencies": {
     "bunny": "^1.0.1",
     "chttps": "^1.0.6",
     "dirichlet": "1.0.1",
     "enable-mobile": "^1.0.7",
-    "gl-line3d": "^1.1.7",
-    "gl-mesh3d": "^2.0.3",
-    "gl-scatter3d": "^1.1.2",
-    "gl-surface3d": "^1.4.0",
-    "ndarray-fill": "^1.0.1",
+    "gl-line3d": "^1.1.8",
+    "gl-mesh3d": "^2.0.4",
+    "gl-scatter3d": "^1.1.3",
+    "gl-surface3d": "^1.4.1",
+    "ndarray-fill": "^1.0.2",
     "simplicial-complex": "^1.0.0"
   },
   "scripts": {
