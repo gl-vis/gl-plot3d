@@ -1,8 +1,6 @@
 'use strict'
 
-module.exports = createScene
-
-var createCamera = require('3d-view-controls')
+var createCamera = require('./lib/camera.js')
 var createAxes   = require('gl-axes3d')
 var axesRanges   = require('gl-axes3d/properties')
 var createSpikes = require('gl-spikes3d')
@@ -14,6 +12,11 @@ var perspective  = require('gl-mat4/perspective')
 var ortho        = require('gl-mat4/ortho')
 var createShader = require('./lib/shader')
 var isMobile = require('is-mobile')({ tablet: true })
+
+module.exports = {
+  createScene: createScene,
+  createCamera: createCamera
+}
 
 function MouseSelect() {
   this.mouse          = [-1,-1]

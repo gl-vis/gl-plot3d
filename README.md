@@ -16,7 +16,8 @@ This module (and this whole subecosystem) skew more towards the easy-side of the
 [<img src="images/scatter3d.png" width="400px" alt="3D scatter plot">](http://requirebin.com/?gist=cf75d78184f6b8cac15a) [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=cf75d78184f6b8cac15a)
 
 ```javascript
-var createScene   = require('gl-plot3d')
+var createScene   = require('gl-plot3d').createScene
+var createCamera  = require('gl-plot3d').createCamera
 var createScatter = require('gl-scatter3d')
 var bunny         = require('bunny')
 

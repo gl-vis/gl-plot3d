@@ -7,7 +7,7 @@
     "example": "example"
   },
   "dependencies": {
-    "3d-view-controls": "git://github.com/archmoj/3d-view-controls.git#fe3c77b807618c0d51f4c50a691e2af0486bfda9",
+    "3d-view": "^2.0.0",
     "a-big-triangle": "^1.0.3",
     "gl-axes3d": "git://github.com/gl-vis/gl-axes3d.git#7a57149812d2a0bae4283ca927d0df3723af688e",
     "gl-fbo": "^2.0.5",
@@ -16,9 +16,13 @@
     "gl-shader": "^4.2.1",
     "gl-spikes3d": "^1.0.8",
     "glslify": "^7.0.0",
+    "has-passive-events": "^1.0.0",
     "is-mobile": "^2.0.0",
     "mouse-change": "^1.4.0",
-    "ndarray": "^1.0.18"
+    "mouse-event-offset": "^3.0.2",
+    "mouse-wheel": "^1.2.0",
+    "ndarray": "^1.0.18",
+    "right-now": "^1.0.0"
   },
   "devDependencies": {
     "bunny": "^1.0.1",
