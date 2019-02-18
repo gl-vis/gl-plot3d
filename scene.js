@@ -577,12 +577,11 @@ function createScene(options) {
     //Compute camera parameters
 
     if(cameraOptions.ortho === true) {
-      var Q = 0.001 * scene.fovy;
       ortho(projection,
-        -width * Q, width * Q / scene.pixelRatio,
-        -height * Q, height * Q / scene.pixelRatio,
-        scene.zNear / scene.pixelRatio,
-        scene.zFar / scene.pixelRatio
+        -0.5 * width/height, 0.5 * width/height,
+        -0.5, 0.5,
+        scene.zNear,
+        scene.zFar
       )
       cameraParams.ortho = true
     } else {
