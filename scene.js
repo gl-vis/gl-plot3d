@@ -114,8 +114,10 @@ function createScene(options) {
     zoomMin: options.camera.zoomMax || 0.1,
     zoomMax: options.camera.zoomMin || 100,
     mode:    options.camera.mode    || 'turntable',
-    ortho:   (options.camera.projection && options.camera.projection.type === 'orthographic') || false
+    _ortho:   (options.camera.projection && options.camera.projection.type === 'orthographic') || false
   }
+
+  if(cameraOptions._ortho === false) debugger;
 
   //Create axes
   var axesOptions = options.axes || {}
@@ -143,7 +145,7 @@ function createScene(options) {
     view:         null,
     projection:   projection,
     model:        model,
-    ortho:        false
+    _ortho:        false
   }
 
   var pickDirty = true
@@ -579,7 +581,7 @@ function createScene(options) {
 
     //Compute camera parameters
 
-    if(cameraOptions.ortho === true) {
+    if(cameraOptions._ortho === true) {
       var Q = 0.5 * Math.pow(
         Math.pow(cameraOptions.eye.x - cameraOptions.center.x, 2) +
         Math.pow(cameraOptions.eye.y - cameraOptions.center.y, 2) +
@@ -595,7 +597,7 @@ function createScene(options) {
         Q * scene.zNear,
         Q * scene.zFar
       )
-      cameraParams.ortho = true
+      cameraParams._ortho = true
     } else {
       perspective(projection,
         scene.fovy,
@@ -603,7 +605,7 @@ function createScene(options) {
         scene.zNear,
         scene.zFar
       )
-      cameraParams.ortho = false
+      cameraParams._ortho = false
     }
 
     //Compute model matrix

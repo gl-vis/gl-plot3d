@@ -30,8 +30,7 @@ function createCamera(element, options) {
     up:     options.up     || [0,1,0],
     eye:    options.eye    || [0,0,10],
     mode:   options.mode   || 'orbit',
-    distanceLimits: limits,
-    ortho:  (options.projection && options.projection.type === 'orthographic') || false
+    distanceLimits: limits
   })
 
   var pmatrix = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -51,6 +50,7 @@ function createCamera(element, options) {
     flipX:              !!options.flipX,
     flipY:              !!options.flipY,
     modes:              view.modes,
+    _ortho: options._ortho || (options.projection && options.projection.type === 'orthographic') || false,
     tick: function() {
       var t = now()
       var delay = this.delay
