@@ -7,9 +7,9 @@
     "example": "example"
   },
   "dependencies": {
-    "3d-view-controls": "^2.2.2",
+    "3d-view-controls": "git://github.com/archmoj/3d-view-controls.git#fe3c77b807618c0d51f4c50a691e2af0486bfda9",
     "a-big-triangle": "^1.0.3",
-    "gl-axes3d": "^1.4.4",
+    "gl-axes3d": "git://github.com/gl-vis/gl-axes3d.git#7a57149812d2a0bae4283ca927d0df3723af688e",
     "gl-fbo": "^2.0.5",
     "gl-mat4": "^1.2.0",
     "gl-select-static": "^2.0.4",
@@ -25,9 +25,9 @@
     "chttps": "^1.0.6",
     "dirichlet": "1.0.1",
     "enable-mobile": "^1.0.7",
-    "gl-line3d": "^1.1.8",
-    "gl-mesh3d": "^2.0.6",
-    "gl-scatter3d": "^1.1.4",
+    "gl-line3d": "^1.1.10",
+    "gl-mesh3d": "^2.0.7",
+    "gl-scatter3d": "^1.1.6",
     "gl-surface3d": "^1.4.1",
     "ndarray-fill": "^1.0.2",
     "simplicial-complex": "^1.0.0"

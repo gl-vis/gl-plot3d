@@ -11,6 +11,7 @@ var createFBO    = require('gl-fbo')
 var drawTriangle = require('a-big-triangle')
 var mouseChange  = require('mouse-change')
 var perspective  = require('gl-mat4/perspective')
+var ortho        = require('gl-mat4/ortho')
 var createShader = require('./lib/shader')
 var isMobile = require('is-mobile')({ tablet: true })
 
@@ -103,13 +104,14 @@ function createScene(options) {
   var accumShader = createShader(gl)
 
   //Create a camera
-  var cameraOptions = options.camera || {
-    eye:    [2,0,0],
-    center: [0,0,0],
-    up:     [0,1,0],
-    zoomMin: 0.1,
-    zoomMax: 100,
-    mode:    'turntable'
+  var cameraOptions = {
+    eye:     options.camera.eye     || [2,0,0],
+    center:  options.camera.center  || [0,0,0],
+    up:      options.camera.up      || [0,1,0],
+    zoomMin: options.camera.zoomMax || 0.1,
+    zoomMax: options.camera.zoomMin || 100,
+    ortho:   options.camera.ortho   || false,
+    mode:    options.camera.mode    || 'turntable'
   }
 
   //Create axes
@@ -137,21 +139,24 @@ function createScene(options) {
   var cameraParams = {
     view:         null,
     projection:   projection,
-    model:        model
+    model:        model,
+    ortho:        false
   }
 
   var pickDirty = true
 
   var viewShape = [ gl.drawingBufferWidth, gl.drawingBufferHeight ]
 
+  var camera = createCamera(canvas, cameraOptions)
+
   //Create scene object
   var scene = {
     gl:           gl,
     contextLost:  false,
-    pixelRatio:   options.pixelRatio || parseFloat(window.devicePixelRatio),
+    pixelRatio:   pixelRatio,
     canvas:       canvas,
     selection:    selection,
-    camera:       createCamera(canvas, cameraOptions),
+    camera:       camera,
     axes:         axes,
     axesPixels:   null,
     spikes:       spikes,
@@ -253,6 +258,7 @@ function createScene(options) {
   }
 
   scene.update = function(options) {
+
     if(stopped) {
       return
     }
@@ -569,11 +575,25 @@ function createScene(options) {
     pickShape[1] = Math.max(height/scene.pixelRatio, 1)|0
 
     //Compute camera parameters
-    perspective(projection,
-      scene.fovy,
-      width/height,
-      scene.zNear,
-      scene.zFar)
+
+    if(cameraOptions.ortho === true) {
+      var Q = 0.001 * scene.fovy;
+      ortho(projection,
+        -width * Q, width * Q / scene.pixelRatio,
+        -height * Q, height * Q / scene.pixelRatio,
+        scene.zNear / scene.pixelRatio,
+        scene.zFar / scene.pixelRatio
+      )
+      cameraParams.ortho = true
+    } else {
+      perspective(projection,
+        scene.fovy,
+        width/height,
+        scene.zNear,
+        scene.zFar
+      )
+      cameraParams.ortho = false
+    }
 
     //Compute model matrix
     for(var i=0; i<16; ++i) {
