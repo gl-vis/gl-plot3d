@@ -1,6 +1,6 @@
 'use strict'
 
-var createCamera = require('./lib/camera.js')
+var createCamera = require('./camera.js')
 var createAxes   = require('gl-axes3d')
 var axesRanges   = require('gl-axes3d/properties')
 var createSpikes = require('gl-spikes3d')
@@ -113,8 +113,8 @@ function createScene(options) {
     up:      options.camera.up      || [0,1,0],
     zoomMin: options.camera.zoomMax || 0.1,
     zoomMax: options.camera.zoomMin || 100,
-    ortho:   options.camera.ortho   || false,
-    mode:    options.camera.mode    || 'turntable'
+    mode:    options.camera.mode    || 'turntable',
+    ortho:   (options.camera.projection && options.camera.projection.type === 'orthographic') || false
   }
 
   //Create axes

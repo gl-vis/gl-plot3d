@@ -29,9 +29,9 @@ function createCamera(element, options) {
     center: options.center || [0,0,0],
     up:     options.up     || [0,1,0],
     eye:    options.eye    || [0,0,10],
-    ortho:  options.ortho  || false,
     mode:   options.mode   || 'orbit',
-    distanceLimits: limits
+    distanceLimits: limits,
+    ortho:  (options.projection && options.projection.type === 'orthographic') || false
   })
 
   var pmatrix = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
