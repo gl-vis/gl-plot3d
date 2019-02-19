@@ -117,8 +117,6 @@ function createScene(options) {
     _ortho:   (options.camera.projection && options.camera.projection.type === 'orthographic') || false
   }
 
-  if(cameraOptions._ortho === false) debugger;
-
   //Create axes
   var axesOptions = options.axes || {}
   var axes = createAxes(gl, axesOptions)
