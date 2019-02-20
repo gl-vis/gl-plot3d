@@ -245,100 +245,11 @@ Bounds for the scene
 
 ## Camera Constructor
 
-#### `var camera = require('gl-plot3d').createCamera`
+#### `var camera = require('gl-plot3d').createCamera(element[, options])`
 
-Creates a new camera object.
-
-## Methods
-
-#### `camera.idle(t)`
-Idles the camera at time `t`
-
-* `t` is the time to idle at
-
-#### `camera.flush(t)`
-Flush all events in camera state before time `t`
-
-* `t` is the cut off time for the flush
-
-#### `camera.modes`
-An array of modes supported by the camera
-
-#### `camera.setMode(mode)`
-Sets the camera mode
-
-* `mode` is the new mode.  Must be either `turntable`, `orbit` or `matrix`
-
-#### `camera.getMode()`
-Retrieves the current camera mode
-
-#### `camera.lookAt(t, eye, center, up)`
-Reset camera position to focus on a specified target
-
-* `t` is the time of the event
-* `eye` is the position of the camera
-* `center` is the target of the camera
-* `up` is a vector pointing up
-
-#### `camera.rotate(t, yaw, pitch, roll)`
-Rotates the camera incrementally by some amount
-
-* `t` is the time of the input event
-* `yaw` is the amount to rotate by along y-axis in radians
-* `pitch` is the amount to rotate by along x-axis in radians
-* `roll` is the amount to rotate by along z-axis in radians
-
-#### `camera.pan(t, dx, dy, dz)`
-Pans the camera in local (view relative) coordinates
-
-* `t` is the time of the event
-* `dx,dy,dz` is the amount to move
-
-#### `camera.translate(t, dx, dy, dz)`
-Translates the camera in world (absolute global) coordinates
-
-* `t` is the time of the event
-* `dx,dy,dz` is the amount to move
-
-#### `camera.setMatrix(t, matrix)`
-Sets the camera matrix to some fixed 4x4 matrix
-
-* `t` is the time of the event
-* `matrix` is the new camera matrix
-
-#### `camera.setDistance(t, r)`
-Sets camera distance at time `t`
-
-* `t` is the time of the event
-* `r` is the new camera distance
-
-#### `camera.setDistanceLimits(lo, hi)`
-Sets bounds on the camera distance
-
-#### `camera.getDistanceLimits([out])`
-Retrieves the camera limits
-
-#### `camera.recalcMatrix(t)`
-Recomputes all matrix properties at time `t`
-
-#### `camera.computedMatrix`
-The computed 4x4 matrix of the camera
-
-#### `camera.computedEye`
-The computed 3d eye vector for the camera
-
-#### `camera.computedUp`
-Computed up vector (initialized when calling recalcMatrix)
-
-#### `camera.computedCenter`
-Computed camera center point
-
-#### `camera.computedRadius`
-Computed log(radius)
-
-## Please also see `3d-view`
-https://www.npmjs.com/package/3d-view
-https://github.com/mikolalysenko/3d-view
+## Please refer to `3d-view-controls` for more info.
+https://www.npmjs.com/package/3d-view-controls
+https://github.com/mikolalysenko/3d-view-controls
 
 # License
 (c) 2015 Mikola Lysenko. MIT License
