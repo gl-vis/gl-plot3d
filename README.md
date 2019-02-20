@@ -43,7 +43,7 @@ scene.add(scatter)
 [<img src="images/line3d.png" width="400px" alt="3D line plot">](http://requirebin.com/?gist=16dee68aba0f2aee6068) [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=16dee68aba0f2aee6068)
 
 ```javascript
-var createScene = require('gl-plot3d')
+var createScene = require('gl-plot3d').createScene
 var createLine  = require('gl-line3d')
 
 var scene = createScene()
@@ -70,7 +70,7 @@ scene.add(linePlot)
 [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=1191b34203ffd9adc905)
 
 ```javascript
-var createScene       = require('gl-plot3d')
+var createScene       = require('gl-plot3d').createScene
 var createSurfacePlot = require('gl-surface3d')
 var ndarray           = require('ndarray')
 var fill              = require('ndarray-fill')
@@ -97,7 +97,7 @@ scene.add(surface)
 [<img src="images/torus3d.png" width="400px" alt="3D parametric surface plot">](http://requirebin.com/?gist=5feeac1f3767298d55ca) [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=5feeac1f3767298d55ca)
 
 ```javascript
-var createScene   = require('gl-plot3d')
+var createScene   = require('gl-plot3d').createScene
 var createSurface = require('gl-surface3d')
 var ndarray       = require('ndarray')
 
@@ -134,7 +134,7 @@ scene.add(surface)
 [<img src="images/mesh3d.png" width="400px" alt="3D mesh">](http://requirebin.com/?gist=0d4c38d1aa80edbe4a28) [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=0d4c38d1aa80edbe4a28)
 
 ```javascript
-var createScene = require('gl-plot3d')
+var createScene = require('gl-plot3d').createScene
 var createMesh  = require('gl-mesh3d')
 var bunny       = require('bunny')
 
@@ -155,7 +155,7 @@ scene.add(mesh)
 [<img src="images/wire3d.png" width="400px" alt="3D wire frame">](http://requirebin.com/?gist=37a8df8ace4ecafa010f) [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=37a8df8ace4ecafa010f)
 
 ```javascript
-var createScene = require('gl-plot3d')
+var createScene = require('gl-plot3d').createScene
 var createMesh  = require('gl-mesh3d')
 var bunny       = require('bunny')
 var sc          = require('simplicial-complex')
@@ -180,9 +180,9 @@ npm i gl-plot3d
 
 # API
 
-## Constructor
+## Scene Constructor
 
-#### `var scene = require('gl-plot3d')(canvas[, options])`
+#### `var scene = require('gl-plot3d').createScene(canvas[, options])`
 
 Creates a new scene object.
 
@@ -241,6 +241,104 @@ A reference to the camera object for the scene
 
 #### `scene.bounds`
 Bounds for the scene
+
+
+## Camera Constructor
+
+#### `var camera = require('gl-plot3d').createCamera`
+
+Creates a new camera object.
+
+## Methods
+
+#### `camera.idle(t)`
+Idles the camera at time `t`
+
+* `t` is the time to idle at
+
+#### `camera.flush(t)`
+Flush all events in camera state before time `t`
+
+* `t` is the cut off time for the flush
+
+#### `camera.modes`
+An array of modes supported by the camera
+
+#### `camera.setMode(mode)`
+Sets the camera mode
+
+* `mode` is the new mode.  Must be either `turntable`, `orbit` or `matrix`
+
+#### `camera.getMode()`
+Retrieves the current camera mode
+
+#### `camera.lookAt(t, eye, center, up)`
+Reset camera position to focus on a specified target
+
+* `t` is the time of the event
+* `eye` is the position of the camera
+* `center` is the target of the camera
+* `up` is a vector pointing up
+
+#### `camera.rotate(t, yaw, pitch, roll)`
+Rotates the camera incrementally by some amount
+
+* `t` is the time of the input event
+* `yaw` is the amount to rotate by along y-axis in radians
+* `pitch` is the amount to rotate by along x-axis in radians
+* `roll` is the amount to rotate by along z-axis in radians
+
+#### `camera.pan(t, dx, dy, dz)`
+Pans the camera in local (view relative) coordinates
+
+* `t` is the time of the event
+* `dx,dy,dz` is the amount to move
+
+#### `camera.translate(t, dx, dy, dz)`
+Translates the camera in world (absolute global) coordinates
+
+* `t` is the time of the event
+* `dx,dy,dz` is the amount to move
+
+#### `camera.setMatrix(t, matrix)`
+Sets the camera matrix to some fixed 4x4 matrix
+
+* `t` is the time of the event
+* `matrix` is the new camera matrix
+
+#### `camera.setDistance(t, r)`
+Sets camera distance at time `t`
+
+* `t` is the time of the event
+* `r` is the new camera distance
+
+#### `camera.setDistanceLimits(lo, hi)`
+Sets bounds on the camera distance
+
+#### `camera.getDistanceLimits([out])`
+Retrieves the camera limits
+
+#### `camera.recalcMatrix(t)`
+Recomputes all matrix properties at time `t`
+
+#### `camera.computedMatrix`
+The computed 4x4 matrix of the camera
+
+#### `camera.computedEye`
+The computed 3d eye vector for the camera
+
+#### `camera.computedUp`
+Computed up vector (initialized when calling recalcMatrix)
+
+#### `camera.computedCenter`
+Computed camera center point
+
+#### `camera.computedRadius`
+Computed log(radius)
+
+## Please also see `3d-view`
+https://www.npmjs.com/package/3d-view
+https://github.com/mikolalysenko/3d-view
 
 # License
 (c) 2015 Mikola Lysenko. MIT License
