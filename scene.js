@@ -84,7 +84,7 @@ function createScene(options) {
     gl = getContext(canvas,
       options.glOptions || {
         premultipliedAlpha: true,
-        antialias: true,
+        antialias: false,
         preserveDrawingBuffer: isMobile
       })
   }
