@@ -66,8 +66,6 @@ function createScene(options) {
 
   var stopped = false
 
-  var pixelRatio = options.pixelRatio || parseFloat(window.devicePixelRatio)
-
   var canvas = options.canvas
   if(!canvas) {
     canvas = document.createElement('canvas')
@@ -91,6 +89,10 @@ function createScene(options) {
   if(!gl) {
     throw new Error('webgl not supported')
   }
+
+  var pixelRatio = options.pixelRatio || parseFloat(window.devicePixelRatio)
+  // double pixelRatio when antialias is not enabled by the system
+  if(gl.getContextAttributes().antialias !== true) pixelRatio *= 2
 
   //Initial bounds
   var bounds = options.bounds || [[-10,-10,-10], [10,10,10]]
