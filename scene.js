@@ -90,7 +90,11 @@ function createScene(options) {
     throw new Error('webgl not supported')
   }
 
-  var pixelRatio = options.pixelRatio || parseFloat(window.devicePixelRatio)
+
+  //Note: we no longer set pixelRatio via options.pixelRatio similar to the line below
+  //which used to trigger issues
+  //var pixelRatio = options.pixelRatio || parseFloat(window.devicePixelRatio)
+  var pixelRatio = parseFloat(window.devicePixelRatio)
   // double pixelRatio when antialias is not enabled by the system
   if(gl.getContextAttributes().antialias !== true) pixelRatio *= 2
 
