@@ -220,6 +220,14 @@ function createScene(options) {
       style.height   = height + 'px'
       dirty = true
     }
+
+    // reduce scene.pixelRatio if sizes exceeding the maximum limit
+    while(scene.pixelRatio > 1 && (
+      scene.pixelRatio * nextWidth > gl.MAX_RENDERBUFFER_SIZE  ||
+      scene.pixelRatio * nextHeight > gl.MAX_RENDERBUFFER_SIZE
+    )) {
+      scene.pixelRatio--;
+    }
   }
   if(scene.autoResize) {
     resizeListener()
