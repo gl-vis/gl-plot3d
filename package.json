@@ -30,9 +30,9 @@
     "dirichlet": "1.0.1",
     "enable-mobile": "^1.0.7",
     "gl-line3d": "^1.1.10",
-    "gl-mesh3d": "^2.0.7",
-    "gl-scatter3d": "^1.1.6",
-    "gl-surface3d": "^1.4.1",
+    "gl-mesh3d": "^2.0.8",
+    "gl-scatter3d": "^1.2.0",
+    "gl-surface3d": "^1.4.2",
     "ndarray-fill": "^1.0.2",
     "simplicial-complex": "^1.0.0"
   },
