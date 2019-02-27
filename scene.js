@@ -63,6 +63,7 @@ function defaultBool(x) {
 
 function createScene(options) {
   options = options || {}
+  options.camera = options.camera || {}
 
   var stopped = false
 
@@ -148,7 +149,7 @@ function createScene(options) {
 
   var viewShape = [ gl.drawingBufferWidth, gl.drawingBufferHeight ]
 
-  var camera = createCamera(canvas, cameraOptions)
+  var camera = options.cameraObject || createCamera(canvas, cameraOptions)
 
   //Create scene object
   var scene = {
