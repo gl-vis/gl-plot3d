@@ -105,6 +105,11 @@ function createScene(options) {
 
   var accumShader = createShader(gl)
 
+  var isOrtho =
+    (options.cameraObject && options.cameraObject._ortho === true) ||
+    (options.camera.projection && options.camera.projection.type === 'orthographic') ||
+    false
+
   //Create a camera
   var cameraOptions = {
     eye:     options.camera.eye     || [2,0,0],
@@ -113,7 +118,7 @@ function createScene(options) {
     zoomMin: options.camera.zoomMax || 0.1,
     zoomMax: options.camera.zoomMin || 100,
     mode:    options.camera.mode    || 'turntable',
-    _ortho:   (options.camera.projection && options.camera.projection.type === 'orthographic') || false
+    _ortho:  isOrtho
   }
 
   //Create axes
@@ -578,7 +583,7 @@ function createScene(options) {
 
     //Compute camera parameters
 
-    if(cameraOptions._ortho === true) {
+    if(isOrtho) {
       ortho(projection,
         -width/height,
         width/height,
