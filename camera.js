@@ -177,97 +177,107 @@ function createCamera(element, options) {
     return false
   })
 
-  var lastX = 0, lastY = 0, lastMods = {shift: false, control: false, alt: false, meta: false}
-  camera.mouseListener = mouseChange(element, handleInteraction)
+  camera._lastX = -1
+  camera._lastY = -1
+  camera._lastMods = {shift: false, control: false, alt: false, meta: false}
 
-  //enable simple touch interactions
-  element.addEventListener('touchstart', function (ev) {
-    var xy = mouseOffset(ev.changedTouches[0], element)
-    handleInteraction(0, xy[0], xy[1], lastMods)
-    handleInteraction(1, xy[0], xy[1], lastMods)
+  camera.enableMouseListeners = function() {
 
-    ev.preventDefault()
-  }, hasPassive ? {passive: false} : false)
+    camera.mouseListener = mouseChange(element, handleInteraction)
 
-  element.addEventListener('touchmove', function (ev) {
-    var xy = mouseOffset(ev.changedTouches[0], element)
-    handleInteraction(1, xy[0], xy[1], lastMods)
+    //enable simple touch interactions
+    element.addEventListener('touchstart', function (ev) {
+      var xy = mouseOffset(ev.changedTouches[0], element)
+      handleInteraction(0, xy[0], xy[1], camera._lastMods)
+      handleInteraction(1, xy[0], xy[1], camera._lastMods)
 
-    ev.preventDefault()
-  }, hasPassive ? {passive: false} : false)
+      ev.preventDefault()
+    }, hasPassive ? {passive: false} : false)
 
-  element.addEventListener('touchend', function (ev) {
+    element.addEventListener('touchmove', function (ev) {
+      var xy = mouseOffset(ev.changedTouches[0], element)
+      handleInteraction(1, xy[0], xy[1], camera._lastMods)
 
-    handleInteraction(0, lastX, lastY, lastMods)
+      ev.preventDefault()
+    }, hasPassive ? {passive: false} : false)
 
-    ev.preventDefault()
-  }, hasPassive ? {passive: false} : false)
+    element.addEventListener('touchend', function (ev) {
 
-  function handleInteraction (buttons, x, y, mods) {
-    var keyBindingMode = camera.keyBindingMode
+      handleInteraction(0, camera._lastX, camera._lastY, camera._lastMods)
 
-    if(keyBindingMode === false) return
+      ev.preventDefault()
+    }, hasPassive ? {passive: false} : false)
 
-    var rotate = keyBindingMode === 'rotate'
-    var pan = keyBindingMode === 'pan'
-    var zoom = keyBindingMode === 'zoom'
+    function handleInteraction (buttons, x, y, mods) {
+      var keyBindingMode = camera.keyBindingMode
 
-    var ctrl = !!mods.control
-    var alt = !!mods.alt
-    var shift = !!mods.shift
-    var left = !!(buttons & 1)
-    var right = !!(buttons & 2)
-    var middle = !!(buttons & 4)
+      if(keyBindingMode === false) return
 
-    var scale = 1.0 / element.clientHeight
-    var dx    = scale * (x - lastX)
-    var dy    = scale * (y - lastY)
+      var rotate = keyBindingMode === 'rotate'
+      var pan = keyBindingMode === 'pan'
+      var zoom = keyBindingMode === 'zoom'
 
-    var flipX = camera.flipX ? 1 : -1
-    var flipY = camera.flipY ? 1 : -1
+      var ctrl = !!mods.control
+      var alt = !!mods.alt
+      var shift = !!mods.shift
+      var left = !!(buttons & 1)
+      var right = !!(buttons & 2)
+      var middle = !!(buttons & 4)
 
-    var drot  = Math.PI * camera.rotateSpeed
+      var scale = 1.0 / element.clientHeight
+      var dx    = scale * (x - camera._lastX)
+      var dy    = scale * (y - camera._lastY)
 
-    var t = now()
+      var flipX = camera.flipX ? 1 : -1
+      var flipY = camera.flipY ? 1 : -1
 
-    if((rotate && left && !ctrl && !alt && !shift) || (left && !ctrl && !alt && shift)) {
-      // Rotate
-      view.rotate(t, flipX * drot * dx, -flipY * drot * dy, 0)
+      var drot  = Math.PI * camera.rotateSpeed
+
+      var t = now()
+
+      if(camera._lastX !== -1 && camera._lastY !== -1) {
+        if((rotate && left && !ctrl && !alt && !shift) || (left && !ctrl && !alt && shift)) {
+          // Rotate
+          view.rotate(t, flipX * drot * dx, -flipY * drot * dy, 0)
+        }
+
+        if((pan && left && !ctrl && !alt && !shift) || right || (left && ctrl && !alt && !shift)) {
+          // Pan
+          view.pan(t, -camera.translateSpeed * dx * distance, camera.translateSpeed * dy * distance, 0)
+        }
+
+        if((zoom && left && !ctrl && !alt && !shift) || middle || (left && !ctrl && alt && !shift)) {
+          // Zoom
+          var kzoom = -camera.zoomSpeed * dy / window.innerHeight * (t - view.lastT()) * 100
+          view.pan(t, 0, 0, distance * (Math.exp(kzoom) - 1))
+        }
+      }
+
+      camera._lastX = x
+      camera._lastY = y
+      camera._lastMods = mods
+
+      return true
     }
 
-    if((pan && left && !ctrl && !alt && !shift) || right || (left && ctrl && !alt && !shift)) {
-      // Pan
-      view.pan(t, -camera.translateSpeed * dx * distance, camera.translateSpeed * dy * distance, 0)
-    }
+    camera.wheelListener = mouseWheel(element, function(dx, dy) {
+      // TODO remove now that we can disable scroll via scrollZoom?
+      if(camera.keyBindingMode === false) return
+      if(!camera.enableWheel) return
 
-    if((zoom && left && !ctrl && !alt && !shift) || middle || (left && !ctrl && alt && !shift)) {
-      // Zoom
-      var kzoom = -camera.zoomSpeed * dy / window.innerHeight * (t - view.lastT()) * 100
-      view.pan(t, 0, 0, distance * (Math.exp(kzoom) - 1))
-    }
-
-    lastX = x
-    lastY = y
-    lastMods = mods
-
-    return true
+      var flipX = camera.flipX ? 1 : -1
+      var flipY = camera.flipY ? 1 : -1
+      var t = now()
+      if(Math.abs(dx) > Math.abs(dy)) {
+        view.rotate(t, 0, 0, -dx * flipX * Math.PI * camera.rotateSpeed / window.innerWidth)
+      } else {
+        var kzoom = -camera.zoomSpeed * flipY * dy / window.innerHeight * (t - view.lastT()) / 20.0
+        view.pan(t, 0, 0, distance * (Math.exp(kzoom) - 1))
+      }
+    }, true)
   }
 
-  camera.wheelListener = mouseWheel(element, function(dx, dy) {
-    // TODO remove now that we can disable scroll via scrollZoom?
-    if(camera.keyBindingMode === false) return
-    if(!camera.enableWheel) return
-
-    var flipX = camera.flipX ? 1 : -1
-    var flipY = camera.flipY ? 1 : -1
-    var t = now()
-    if(Math.abs(dx) > Math.abs(dy)) {
-      view.rotate(t, 0, 0, -dx * flipX * Math.PI * camera.rotateSpeed / window.innerWidth)
-    } else {
-      var kzoom = -camera.zoomSpeed * flipY * dy / window.innerHeight * (t - view.lastT()) / 20.0
-      view.pan(t, 0, 0, distance * (Math.exp(kzoom) - 1))
-    }
-  }, true)
+  camera.enableMouseListeners()
 
   return camera
 }

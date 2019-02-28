@@ -65,8 +65,6 @@ function createScene(options) {
   options = options || {}
   options.camera = options.camera || {}
 
-  var stopped = false
-
   var canvas = options.canvas
   if(!canvas) {
     canvas = document.createElement('canvas')
@@ -187,13 +185,14 @@ function createScene(options) {
     onclick:      options.onclick  || null,
     cameraParams: cameraParams,
     oncontextloss: null,
-    mouseListener: null
+    mouseListener: null,
+    _stopped: false
   }
 
   var pickShape = [ (gl.drawingBufferWidth/scene.pixelRatio)|0, (gl.drawingBufferHeight/scene.pixelRatio)|0 ]
 
   function resizeListener() {
-    if(stopped) {
+    if(scene._stopped) {
       return
     }
     if(!scene.autoResize) {
@@ -266,7 +265,7 @@ function createScene(options) {
 
   scene.update = function(options) {
 
-    if(stopped) {
+    if(scene._stopped) {
       return
     }
     options = options || {}
@@ -275,7 +274,7 @@ function createScene(options) {
   }
 
   scene.add = function(obj) {
-    if(stopped) {
+    if(scene._stopped) {
       return
     }
     obj.axes = axes
@@ -287,7 +286,7 @@ function createScene(options) {
   }
 
   scene.remove = function(obj) {
-    if(stopped) {
+    if(scene._stopped) {
       return
     }
     var idx = objects.indexOf(obj)
@@ -302,11 +301,11 @@ function createScene(options) {
   }
 
   scene.dispose = function() {
-    if(stopped) {
+    if(scene._stopped) {
       return
     }
 
-    stopped = true
+    scene._stopped = true
 
     window.removeEventListener('resize', resizeListener)
     canvas.removeEventListener('webglcontextlost', checkContextLoss)
@@ -340,87 +339,89 @@ function createScene(options) {
   }
 
   //Update mouse position
-  var mouseRotating = false
+  scene._mouseRotating = false
+  scene._prevButtons = 0
 
-  var prevButtons = 0
+  scene.enableMouseListeners = function() {
 
-  scene.mouseListener = mouseChange(canvas, function(buttons, x, y) {
-    if(stopped) {
-      return
-    }
-
-    var numPick = pickBuffers.length
-    var numObjs = objects.length
-    var prevObj = selection.object
-
-    selection.distance = Infinity
-    selection.mouse[0] = x
-    selection.mouse[1] = y
-    selection.object = null
-    selection.screen = null
-    selection.dataCoordinate = selection.dataPosition = null
-
-    var change = false
-
-    if(buttons && prevButtons) {
-      mouseRotating = true
-    } else {
-      if(mouseRotating) {
-        pickDirty = true
+    scene.mouseListener = mouseChange(canvas, function(buttons, x, y) {
+      if(scene._stopped) {
+        return
       }
-      mouseRotating = false
 
-      for(var i=0; i<numPick; ++i) {
-        var result = pickBuffers[i].query(x, pickShape[1] - y - 1, scene.pickRadius)
-        if(result) {
-          if(result.distance > selection.distance) {
-            continue
-          }
-          for(var j=0; j<numObjs; ++j) {
-            var obj = objects[j]
-            if(pickBufferIds[j] !== i) {
+      var numPick = pickBuffers.length
+      var numObjs = objects.length
+      var prevObj = selection.object
+
+      selection.distance = Infinity
+      selection.mouse[0] = x
+      selection.mouse[1] = y
+      selection.object = null
+      selection.screen = null
+      selection.dataCoordinate = selection.dataPosition = null
+
+      var change = false
+
+      if(buttons && scene._prevButtons) {
+        scene._mouseRotating = true
+      } else {
+        if(scene._mouseRotating) {
+          pickDirty = true
+        }
+        scene._mouseRotating = false
+
+        for(var i=0; i<numPick; ++i) {
+          var result = pickBuffers[i].query(x, pickShape[1] - y - 1, scene.pickRadius)
+          if(result) {
+            if(result.distance > selection.distance) {
               continue
             }
-            var objPick = obj.pick(result)
-            if(objPick) {
-              selection.buttons        = buttons
-              selection.screen         = result.coord
-              selection.distance       = result.distance
-              selection.object         = obj
-              selection.index          = objPick.distance
-              selection.dataPosition   = objPick.position
-              selection.dataCoordinate = objPick.dataCoordinate
-              selection.data           = objPick
-              change = true
+            for(var j=0; j<numObjs; ++j) {
+              var obj = objects[j]
+              if(pickBufferIds[j] !== i) {
+                continue
+              }
+              var objPick = obj.pick(result)
+              if(objPick) {
+                selection.buttons        = buttons
+                selection.screen         = result.coord
+                selection.distance       = result.distance
+                selection.object         = obj
+                selection.index          = objPick.distance
+                selection.dataPosition   = objPick.position
+                selection.dataCoordinate = objPick.dataCoordinate
+                selection.data           = objPick
+                change = true
+              }
             }
           }
         }
       }
-    }
 
-    if(prevObj && prevObj !== selection.object) {
-      if(prevObj.highlight) {
-        prevObj.highlight(null)
+      if(prevObj && prevObj !== selection.object) {
+        if(prevObj.highlight) {
+          prevObj.highlight(null)
+        }
+        dirty = true
       }
-      dirty = true
-    }
-    if(selection.object) {
-      if(selection.object.highlight) {
-        selection.object.highlight(selection.data)
+      if(selection.object) {
+        if(selection.object.highlight) {
+          selection.object.highlight(selection.data)
+        }
+        dirty = true
       }
-      dirty = true
-    }
 
-    change = change || (selection.object !== prevObj)
-    if(change && scene.onselect) {
-      scene.onselect(selection)
-    }
+      change = change || (selection.object !== prevObj)
+      if(change && scene.onselect) {
+        scene.onselect(selection)
+      }
 
-    if((buttons & 1) && !(prevButtons & 1) && scene.onclick) {
-      scene.onclick(selection)
-    }
-    prevButtons = buttons
-  })
+      if((buttons & 1) && !(scene._prevButtons & 1) && scene.onclick) {
+        scene.onclick(selection)
+      }
+      scene._prevButtons = buttons
+    })
+  }
 
   function checkContextLoss() {
     if(scene.contextLost) {
@@ -768,21 +769,22 @@ function createScene(options) {
     }
   }
 
-
   //Draw the whole scene
   function render() {
-    if(stopped || scene.contextLost) {
+    if(scene._stopped || scene.contextLost) {
       return
     }
     // this order is important: ios safari sometimes has sync raf
     redraw()
     requestAnimationFrame(render)
   }
+
+  scene.enableMouseListeners()
   render()
 
   //Force redraw of whole scene
   scene.redraw = function() {
-    if(stopped) {
+    if(scene._stopped) {
       return
     }
     dirty = true
