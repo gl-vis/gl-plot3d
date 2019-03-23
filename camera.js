@@ -271,7 +271,7 @@ function createCamera(element, options) {
       if(Math.abs(dx) > Math.abs(dy)) {
         view.rotate(t, 0, 0, -dx * flipX * Math.PI * camera.rotateSpeed / window.innerWidth)
       } else {
-        if(!camera._ortho) {
+        if(event.shiftKey) {
           var kzoom = -camera.zoomSpeed * flipY * dy / window.innerHeight * (t - view.lastT()) / 20.0
           view.pan(t, 0, 0, distance * (Math.exp(kzoom) - 1))
         }

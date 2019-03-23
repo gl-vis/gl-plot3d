@@ -344,7 +344,7 @@ function createScene(options) {
     if(camera.keyBindingMode === false) return
     if(!camera.enableWheel) return
 
-    if(camera._ortho) {
+    if(!event.shiftKey) {
       var s = (dx > dy) ? 1.1 : 1.0 / 1.1
 
       scene.aspect[0] *= s
