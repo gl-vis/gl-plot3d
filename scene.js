@@ -465,6 +465,7 @@ function createScene(options) {
     gl.depthMask(true)
     gl.disable(gl.BLEND)
     gl.enable(gl.DEPTH_TEST)
+    gl.depthFunc(gl.LEQUAL)
 
     var numObjs = objects.length
     var numPick = pickBuffers.length
