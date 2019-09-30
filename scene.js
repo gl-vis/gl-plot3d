@@ -684,9 +684,7 @@ function createScene(options) {
     gl.disable(gl.CULL_FACE)  //most visualization surfaces are 2 sided
 
     //Render opaque pass
-    var hasTransparent = false
     if(axes.enable) {
-      hasTransparent = hasTransparent || axes.isTransparent()
       axes.draw(cameraParams)
     }
     spikes.axes = axes
@@ -695,7 +693,7 @@ function createScene(options) {
     }
 
     gl.disable(gl.CULL_FACE)  //most visualization surfaces are 2 sided
-
+    var hasTransparent = false
     for(var i=0; i<numObjs; ++i) {
       var obj = objects[i]
       obj.axes = axes
@@ -718,9 +716,6 @@ function createScene(options) {
       gl.depthFunc(gl.LESS)
 
       //Render forward facing objects
-      if(axes.enable && axes.isTransparent()) {
-        axes.drawTransparent(cameraParams)
-      }
       for(var i=0; i<numObjs; ++i) {
         var obj = objects[i]
         if(obj.isOpaque && obj.isOpaque()) {
@@ -729,17 +724,17 @@ function createScene(options) {
       }
 
       //Render transparent pass
+      gl.enable(gl.DEPTH_TEST)
       gl.enable(gl.BLEND)
-      gl.blendEquation(gl.FUNC_ADD)
-      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+
       gl.colorMask(true, true, true, true)
-      gl.depthMask(false)
       gl.clearColor(0,0,0,0)
       gl.clear(gl.COLOR_BUFFER_BIT)
 
-      if(axes.isTransparent()) {
-        axes.drawTransparent(cameraParams)
-      }
+      gl.depthMask(false)
+
+      gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD)
+      gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_COLOR, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
       for(var i=0; i<numObjs; ++i) {
         var obj = objects[i]
@@ -752,8 +747,11 @@ function createScene(options) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 
       //Draw composite pass
+      gl.enable(gl.BLEND)
+      gl.blendEquation(gl.FUNC_ADD)
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
       gl.disable(gl.DEPTH_TEST)
+
       accumShader.bind()
       accumBuffer.color[0].bind(0)
       accumShader.uniforms.accumBuffer = 0
