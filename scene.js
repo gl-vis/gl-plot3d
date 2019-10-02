@@ -742,19 +742,25 @@ function createScene(options) {
       //Render transparent pass
       gl.enable(gl.DEPTH_TEST)
       gl.enable(gl.BLEND)
+      gl.cullFace(gl.FRONT)
 
       gl.colorMask(true, true, true, true)
       gl.clearColor(0,0,0,0)
       gl.clear(gl.COLOR_BUFFER_BIT)
 
-      gl.depthMask(false)
-
-      gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD)
-      gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_COLOR, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
-
       for(var i=0; i<numObjs; ++i) {
         var obj = objects[i]
         if(obj.isTransparent && obj.isTransparent()) {
+          var traceType = obj._trace.data.type
+          if(traceType === 'scatter3d' || traceType === 'cone') {
+            gl.depthMask(true)
+            gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+            gl.disable(gl.CULL_FACE)
+          } else {
+            gl.depthMask(false)
+            gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_COLOR, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+            gl.enable(gl.CULL_FACE)
+          }
           obj.drawTransparent(cameraParams)
         }
       }
