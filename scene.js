@@ -81,7 +81,7 @@ function createScene(options) {
   if(!gl) {
     gl = getContext(canvas,
       options.glOptions || {
-        premultipliedAlpha: true,
+        premultipliedAlpha: !navigator.userAgent.search('Firefox'),
         antialias: true,
         preserveDrawingBuffer: isMobile
       })
