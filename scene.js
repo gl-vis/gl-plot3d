@@ -8,7 +8,6 @@ var createSelect = require('gl-select-static')
 var createFBO    = require('gl-fbo')
 var drawTriangle = require('a-big-triangle')
 var mouseChange  = require('mouse-change')
-var mouseWheel   = require('mouse-wheel')
 var perspective  = require('gl-mat4/perspective')
 var ortho        = require('gl-mat4/ortho')
 var createShader = require('./lib/shader')
@@ -338,21 +337,6 @@ function createScene(options) {
     spikes = null
     objects = []
   }
-
-  scene.wheelListener = mouseWheel(canvas, function(dx, dy) {
-    // TODO remove now that we can disable scroll via scrollZoom?
-    if(camera.keyBindingMode === false) return
-    if(!camera.enableWheel) return
-
-    if(camera._ortho) {
-      var s = (dx > dy) ? 1.1 : 1.0 / 1.1
-
-      scene.aspect[0] *= s
-      scene.aspect[1] *= s
-      scene.aspect[2] *= s
-      scene.redraw()
-    }
-  }, true)
 
   //Update mouse position
   scene._mouseRotating = false
