@@ -8,7 +8,6 @@ var createSelect = require('gl-select-static')
 var createFBO    = require('gl-fbo')
 var drawTriangle = require('a-big-triangle')
 var mouseChange  = require('mouse-change')
-var mouseWheel   = require('mouse-wheel')
 var perspective  = require('gl-mat4/perspective')
 var ortho        = require('gl-mat4/ortho')
 var createShader = require('./lib/shader')
@@ -187,7 +186,21 @@ function createScene(options) {
     cameraParams: cameraParams,
     oncontextloss: null,
     mouseListener: null,
-    _stopped: false
+    _stopped: false,
+
+    getAspectratio: function() {
+      return {
+        x: this.aspect[0],
+        y: this.aspect[1],
+        z: this.aspect[2]
+      }
+    },
+
+    setAspectratio: function(aspectratio) {
+      this.aspect[0] = aspectratio.x
+      this.aspect[1] = aspectratio.y
+      this.aspect[2] = aspectratio.z
+    }
   }
 
   var pickShape = [ (gl.drawingBufferWidth/scene.pixelRatio)|0, (gl.drawingBufferHeight/scene.pixelRatio)|0 ]
@@ -338,21 +351,6 @@ function createScene(options) {
     spikes = null
     objects = []
   }
-
-  scene.wheelListener = mouseWheel(canvas, function(dx, dy) {
-    // TODO remove now that we can disable scroll via scrollZoom?
-    if(camera.keyBindingMode === false) return
-    if(!camera.enableWheel) return
-
-    if(camera._ortho) {
-      var s = (dx > dy) ? 1.1 : 1.0 / 1.1
-
-      scene.aspect[0] *= s
-      scene.aspect[1] *= s
-      scene.aspect[2] *= s
-      scene.redraw()
-    }
-  }, true)
 
   //Update mouse position
   scene._mouseRotating = false
