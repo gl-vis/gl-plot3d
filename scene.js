@@ -145,7 +145,7 @@ function createScene(options) {
     view:         null,
     projection:   projection,
     model:        model,
-    _ortho:        false
+    _ortho:       false
   }
 
   var pickDirty = true
@@ -200,6 +200,29 @@ function createScene(options) {
       this.aspect[0] = aspectratio.x
       this.aspect[1] = aspectratio.y
       this.aspect[2] = aspectratio.z
+    },
+
+    setBounds: function(axisIndex, range) {
+      this.bounds[0][axisIndex] = range.min
+      this.bounds[1][axisIndex] = range.max
+    },
+
+    setClearColor: function(clearColor) {
+      this.clearColor = clearColor
+    },
+
+    clearRGBA: function() {
+      this.gl.clearColor(
+        this.clearColor[0],
+        this.clearColor[1],
+        this.clearColor[2],
+        this.clearColor[3]
+      )
+
+      this.gl.clear(
+        this.gl.COLOR_BUFFER_BIT |
+        this.gl.DEPTH_BUFFER_BIT
+      )
     }
   }
 
@@ -598,48 +621,7 @@ function createScene(options) {
     pickShape[1] = Math.max(height/scene.pixelRatio, 1)|0
 
     //Compute camera parameters
-
-    if(isOrtho) {
-      ortho(projection,
-        -width/height,
-        width/height,
-        -1,
-        1,
-        scene.zNear,
-        scene.zFar
-      )
-      cameraParams._ortho = true
-    } else {
-      perspective(projection,
-        scene.fovy,
-        width/height,
-        scene.zNear,
-        scene.zFar
-      )
-      cameraParams._ortho = false
-    }
-
-    //Compute model matrix
-    for(var i=0; i<16; ++i) {
-      model[i] = 0
-    }
-    model[15] = 1
-
-    var maxS = 0
-    for(var i=0; i<3; ++i) {
-      maxS = Math.max(maxS, bounds[1][i] - bounds[0][i])
-    }
-
-    for(var i=0; i<3; ++i) {
-      if(scene.autoScale) {
-        model[5*i] = scene.aspect[i] / (bounds[1][i] - bounds[0][i])
-      } else {
-        model[5*i] = 1  / maxS
-      }
-      if(scene.autoCenter) {
-        model[12+i] = -model[5*i] * 0.5 * (bounds[0][i] + bounds[1][i])
-      }
-    }
+    calcCameraParams(scene, isOrtho)
 
     //Apply axes/clip bounds
     for(var i=0; i<numObjs; ++i) {
@@ -687,9 +669,8 @@ function createScene(options) {
     //  3. composite final scene
 
     //Clear FBO
-    var clearColor = scene.clearColor
-    gl.clearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3])
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    scene.clearRGBA()
+
     gl.depthMask(true)
     gl.colorMask(true, true, true, true)
     gl.enable(gl.DEPTH_TEST)
@@ -807,4 +788,61 @@ function createScene(options) {
   }
 
   return scene
+}
+
+function calcCameraParams(scene, isOrtho) {
+  var bounds = scene.bounds
+  var cameraParams = scene.cameraParams
+  var projection = cameraParams.projection
+  var model = cameraParams.model
+
+  var width = scene.gl.drawingBufferWidth
+  var height = scene.gl.drawingBufferHeight
+  var zNear = scene.zNear
+  var zFar = scene.zFar
+  var fovy = scene.fovy
+
+  var r = width / height
+
+  if(isOrtho) {
+    ortho(projection,
+      -r,
+      r,
+      -1,
+      1,
+      zNear,
+      zFar
+    )
+    cameraParams._ortho = true
+  } else {
+    perspective(projection,
+      fovy,
+      r,
+      zNear,
+      zFar
+    )
+    cameraParams._ortho = false
+  }
+
+  //Compute model matrix
+  for(var i=0; i<16; ++i) {
+    model[i] = 0
+  }
+  model[15] = 1
+
+  var maxS = 0
+  for(var i=0; i<3; ++i) {
+    maxS = Math.max(maxS, bounds[1][i] - bounds[0][i])
+  }
+
+  for(var i=0; i<3; ++i) {
+    if(scene.autoScale) {
+      model[5*i] = scene.aspect[i] / (bounds[1][i] - bounds[0][i])
+    } else {
+      model[5*i] = 1 / maxS
+    }
+    if(scene.autoCenter) {
+      model[12+i] = -model[5*i] * 0.5 * (bounds[0][i] + bounds[1][i])
+    }
+  }
 }
