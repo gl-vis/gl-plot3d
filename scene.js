@@ -11,7 +11,7 @@ var mouseChange  = require('mouse-change')
 var perspective  = require('gl-mat4/perspective')
 var ortho        = require('gl-mat4/ortho')
 var createShader = require('./lib/shader')
-var isMobile = require('is-mobile')({ tablet: true })
+var isMobile = require('is-mobile')({ tablet: true, featureDetect: true })
 
 module.exports = {
   createScene: createScene,

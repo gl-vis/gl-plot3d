@@ -17,7 +17,7 @@
     "gl-spikes3d": "^1.0.9",
     "glslify": "^7.0.0",
     "has-passive-events": "^1.0.0",
-    "is-mobile": "^2.1.0",
+    "is-mobile": "^2.2.0",
     "mouse-change": "^1.4.0",
     "mouse-event-offset": "^3.0.2",
     "mouse-wheel": "^1.2.0",
