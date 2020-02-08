@@ -204,6 +204,7 @@ function createScene(options) {
       this.aspect[0] = aspectratio.x
       this.aspect[1] = aspectratio.y
       this.aspect[2] = aspectratio.z
+      pickDirty = true
     },
 
     setBounds: function(axisIndex, range) {
