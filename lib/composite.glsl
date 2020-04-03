@@ -16,7 +16,7 @@ void main() {
   float b = accum.b;
   float a = accum.a;
 
-  float q = pow(1.0 - (f(r) + f(g) + f(b)) / 3.0, 1.0 / n);
+  float q = 0.5 * (a + pow(1.0 - (f(r) + f(g) + f(b)) / 3.0, 1.0 / n));
 
   gl_FragColor = vec4(
     r * q,
