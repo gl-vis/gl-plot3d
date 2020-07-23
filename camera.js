@@ -54,10 +54,11 @@ function createCamera(element, options) {
     tick: function() {
       var t = now()
       var delay = this.delay
-      var ctime = t - 2 * delay
-      view.idle(t-delay)
-      view.recalcMatrix(ctime)
-      view.flush(t-(100+delay*2))
+      if (t > delay) {
+        view.idle(t-delay)
+        view.recalcMatrix(t-delay)
+        view.flush(t-delay)
+      }
       var allEqual = true
       var matrix = view.computedMatrix
       for(var i=0; i<16; ++i) {
@@ -272,7 +273,7 @@ function createCamera(element, options) {
         view.rotate(t, 0, 0, -dx * flipX * Math.PI * camera.rotateSpeed / window.innerWidth)
       } else {
         if(!camera._ortho) {
-          var kzoom = -camera.zoomSpeed * flipY * dy / window.innerHeight * (t - view.lastT()) / 20.0
+          var kzoom = -camera.zoomSpeed * flipY * dy / window.innerHeight * (t - view.lastT()) / 100.0
           view.pan(t, 0, 0, distance * (Math.exp(kzoom) - 1))
         }
       }
