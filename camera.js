@@ -190,23 +190,17 @@ function createCamera(element, options) {
       var xy = mouseOffset(ev.changedTouches[0], element)
       handleInteraction(0, xy[0], xy[1], camera._lastMods)
       handleInteraction(1, xy[0], xy[1], camera._lastMods)
-
-      ev.preventDefault()
-    }, hasPassive ? {passive: false} : false)
+    }, hasPassive ? {passive: true} : false)
 
     element.addEventListener('touchmove', function (ev) {
       var xy = mouseOffset(ev.changedTouches[0], element)
       handleInteraction(1, xy[0], xy[1], camera._lastMods)
-
       ev.preventDefault()
     }, hasPassive ? {passive: false} : false)
 
     element.addEventListener('touchend', function (ev) {
-
       handleInteraction(0, camera._lastX, camera._lastY, camera._lastMods)
-
-      ev.preventDefault()
-    }, hasPassive ? {passive: false} : false)
+    }, hasPassive ? {passive: true} : false)
 
     function handleInteraction (buttons, x, y, mods) {
       var keyBindingMode = camera.keyBindingMode
