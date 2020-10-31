@@ -237,7 +237,8 @@ function createCamera(element, options) {
 
         if((pan && left && !ctrl && !alt && !shift) || right || (left && ctrl && !alt && !shift)) {
           // Pan
-          view.pan(t, -camera.translateSpeed * dx * distance, camera.translateSpeed * dy * distance, 0)
+          var multiplier = distance > 1 ? distance : 1;
+          view.pan(t, -camera.translateSpeed * dx * multiplier, camera.translateSpeed * dy * multiplier, 0)
         }
 
         if((zoom && left && !ctrl && !alt && !shift) || middle || (left && !ctrl && alt && !shift)) {
